@@ -78,7 +78,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.hCursor        = LoadCursorW(nullptr, (LPCWSTR)IDC_ARROW);
 	wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW);
 	wcex.lpszClassName  = L"SH2CONFIG";
-	wcex.hIconSm        = LoadIconW(wcex.hInstance, MAKEINTRESOURCEW(IDI_SMALL));
+	//wcex.hIconSm        = LoadIconW(wcex.hInstance, MAKEINTRESOURCEW(IDI_SMALL));
 
 	return RegisterClassExW(&wcex);
 }

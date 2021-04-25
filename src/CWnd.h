@@ -167,7 +167,7 @@ class CCtrlDropBox : public CWnd
 public:
 	void CreateWindow(int X, int Y, int Width, int Height, HWND hParent, HINSTANCE hInstance, HFONT hFont)
 	{
-		CWnd::CreateWindow(WC_COMBOBOXW, L"", CBS_DROPDOWNLIST | WS_VISIBLE | WS_CHILD | WS_VSCROLL, X + Width - 80, Y, 80/*Width*/, Height, hParent, hInstance);
+		CWnd::CreateWindow(WC_COMBOBOXW, L"", CBS_DROPDOWNLIST | WS_VSCROLL | WS_VISIBLE | WS_CHILD | WS_VSCROLL, X, Y, Width, Height, hParent, hInstance);
 		SendMessageW(*this, WM_SETFONT, (LPARAM)hFont, TRUE);
 	}
 
@@ -244,7 +244,7 @@ class CFieldList : public CCombined
 public:
 	virtual void CreateWindow(LPCWSTR lpName, int X, int Y, int Width, int Height, HWND hParent, HINSTANCE hInstance, HFONT hFont)
 	{
-		const int sub = 80;
+		const int sub = 120;
 		hStatic.CreateWindow(lpName, X, Y, Width - sub, Height, hParent, hInstance, hFont);
 		hList.CreateWindow(X + Width - sub, Y, sub, Height, hParent, hInstance, hFont);
 	}
@@ -269,8 +269,9 @@ class CFieldPad : public CCombined
 {
 	virtual void CreateWindow(LPCWSTR lpName, int X, int Y, int Width, int Height, HWND hParent, HINSTANCE hInstance, HFONT hFont)
 	{
-		hStatic.CreateWindow(lpName, X, Y, Width - 80, Height, hParent, hInstance, hFont);
-		hList.CreateWindow(X + Width - 80, Y, 80, Height, hParent, hInstance, hFont);
+		const int W = 110;
+		hStatic.CreateWindow(lpName, X, Y, Width - W, Height, hParent, hInstance, hFont);
+		hList.CreateWindow(X + Width - W, Y, W, Height, hParent, hInstance, hFont);
 	}
 	virtual void Release()
 	{

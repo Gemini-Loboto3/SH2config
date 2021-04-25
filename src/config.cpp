@@ -2,7 +2,7 @@
 //
 
 #include "framework.h"
-#include "resources.h"
+#include "resource.h"
 #include "CWnd.h"
 #include "CConfig.h"
 #include <memory>
@@ -74,11 +74,10 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.style          = CS_HREDRAW | CS_VREDRAW;
 	wcex.lpfnWndProc    = WndProc;
 	wcex.hInstance      = hInstance;
-	wcex.hIcon          = LoadIconW(hInstance, MAKEINTRESOURCEW(IDI_CONFIG));
 	wcex.hCursor        = LoadCursorW(nullptr, (LPCWSTR)IDC_ARROW);
 	wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW);
 	wcex.lpszClassName  = L"SH2CONFIG";
-	//wcex.hIconSm        = LoadIconW(wcex.hInstance, MAKEINTRESOURCEW(IDI_SMALL));
+	wcex.hIconSm = wcex.hIcon= LoadIconW(wcex.hInstance, MAKEINTRESOURCEW(IDI_CONFIG));
 
 	return RegisterClassExW(&wcex);
 }

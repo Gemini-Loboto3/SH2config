@@ -1,0 +1,594 @@
+<Config>
+	<Sections>
+		<Section name="RESOLUTION &amp; DISPLAY SETTINGS" id="0">
+			<Option name="ScreenMode" type="list" id="13" desc="14">
+				<Value tip="Windowed Mode" default="1" id="15">1</Value>
+				<Value tip="Windowed Fullscreen Mode" id="16">2</Value>
+				<Value tip="Fullscreen Mode" id="17">3</Value>
+			</Option>
+			<Option name="WndModeBorder" type="check" id="18" desc="19">
+				<Value tip="Disable" default="1">0</Value>
+				<Value tip="Enable">1</Value>
+			</Option>
+			<Option name="DynamicResolution" type="check" id="20" desc="21">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="WidescreenFix" type="check" id="22" desc="23">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+		</Section>
+	
+		<Section name="DIRECTX SETTINGS" id="1">
+			<Option name="d3d8to9" type="check" id="OPT_D3D8TO9">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="AdjustColorTemp" type="check" id="OPT_SHADER_TEMP">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="EnableSMAA" type="check" id="OPT_SHADER_SMAA">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="RestoreBrightnessSelector" type="check" id="OPT_SHADER_BRIGHT">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+		</Section>
+	
+		<Section name="PERFORMANCE SETTINGS" id="2">
+			<Option name="DisableGameUX" type="check">
+				<Value tip="Disable">1</Value>
+				<Value tip="Enable" default="1">0</Value>
+			</Option>
+			<Option name="FixGPUAntiAliasing" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="SingleCoreAffinityLegacy" type="list">
+				<Value tip="Disable" default="1">0</Value>
+				<Value tip="CPU0">1</Value>
+				<Value tip="CPU1">2</Value>
+				<Value tip="CPU2">3</Value>
+				<Value tip="CPU3">4</Value>
+				<Value tip="CPU4">5</Value>
+				<Value tip="CPU5">6</Value>
+				<Value tip="CPU6">7</Value>
+				<Value tip="CPU7">8</Value>
+				<Value tip="CPU8">9</Value>
+				<Value tip="CPU9">10</Value>
+				<Value tip="CPU10">11</Value>
+				<Value tip="CPU11">12</Value>
+				<Value tip="CPU12">13</Value>
+				<Value tip="CPU13">14</Value>
+				<Value tip="CPU14">15</Value>
+				<Value tip="CPU15">16</Value>
+			</Option>
+		</Section>
+	
+		<Section name="ADVANCED OPTIONS" id="3">
+			<Option name="AnisotropicFiltering" type="list">
+				<Value tip="Disable">0</Value>
+				<Value tip="Auto" default="1">1</Value>
+				<Value tip="x2">2</Value>
+				<Value tip="x4">4</Value>
+				<Value tip="x8">8</Value>
+				<Value tip="x16">16</Value>
+			</Option>
+			<Option name="AutoUpdateModule" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="CheckCompatibilityMode" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="CheckForAdminAccess" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="DisableScreenSaver" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="NoCDPatch" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="UseCustomModFolder" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+		</Section>
+	
+		<Section name="CONTROLLER SETTINGS" id="4">
+			<Option name="DPadMovementFix" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="GamepadControlsFix" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="PadNumber" type="pad">
+				<Value>0</Value>
+			</Option>
+			<Option name="RestoreSearchCamMovement" type="list">
+				<Value tip="Disable">0</Value>
+				<Value tip="XInput" default="1">1</Value>
+				<Value tip="DirectInput">2</Value>
+				<Value tip="DirectInput (Alternate)">3</Value>
+			</Option>
+			<Option name="RestoreVibration" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="Southpaw" type="check">
+				<Value tip="Disable" default="1">0</Value>
+				<Value tip="Enable">1</Value>
+			</Option>
+		</Section>
+	
+		<Section name="HUD &amp; NOISE FILTER SETTINGS" id="5">
+			<Option name="DisableRedCrossInCutScenes" type="check" id="OPT_HUD_LHI_CUT">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="DisableRedCross" type="check" id="OPT_HUD_LHI">
+				<Value tip="Disable" default="1">0</Value>
+				<Value tip="Enable">1</Value>
+			</Option>
+			<Option name="IncreaseNoiseEffectRes" type="list" id="OPT_HUD_NOISE">
+				<Value tip="256">256</Value>
+				<Value tip="512">512</Value>
+				<Value tip="768" default="1">768</Value>
+				<Value tip="1024">1024</Value>
+			</Option>
+		</Section>
+	
+		<Section name="CUTSCENE SETTINGS" id="6">
+			<Option name="DisableCutsceneBorders" type="check" id="OPT_CUTSCENE_BORDERS">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="ReduceCutsceneFOV" type="check" id="OPT_CUTSCENE_REDUCE_FOV">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+		</Section>
+	
+		<Section name="FULLSCREEN MEDIA SETTINGS" id="7">
+			<Option name="FullscreenImages" type="list" id="OPT_MEDIA_IMAGE">
+				<Value tip="Disable">0</Value>
+				<Value tip="Fit">1</Value>
+				<Value tip="Fill">1</Value>
+				<Value tip="Auto" default="1">3</Value>
+			</Option>
+			<Option name="FullscreenVideos" type="list" id="OPT_MEDIA_FMV">
+				<Value tip="Disable">0</Value>
+				<Value tip="Fit">1</Value>
+				<Value tip="Fill">1</Value>
+				<Value tip="Auto" default="1">3</Value>
+			</Option>
+		</Section>
+	
+		<Section name="MENU &amp; LANGUAGE SETTINGS" id="8">
+			<Option name="MainMenuFix" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="MainMenuTitlePerLang" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="LockScreenPosition" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="LockSpeakerConfig" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="UnlockJapLang" type="check">
+				<Value tip="Disable" default="1">0</Value>
+				<Value tip="Enable">1</Value>
+			</Option>
+			<Option name="UseBestGraphics" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="UseCustomExeStr" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+		</Section>
+	
+		<Section name="GAME FIXES" id="9">
+			<Option name="AudioClipDetection" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="CatacombsMeatRoomFix" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="ClosetCutsceneFix" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="CreateLocalFix" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="DisableHighDPIScaling" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="DisableSafeMode" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="EnableSFXAddrHack" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="EnableSoftShadows" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="EnableTexAddrHack" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="FastTransitions" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="Fix2D" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="FixAptClockFlashlight" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="FixChainsawSpawn" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="FixCreatureVehicleSpawn" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="FixDrawingTextLine" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="FixHangOnEsc" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="FixMemoFading" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="FixMissingWallChunks" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="FixSaveBGImage" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="FixTownWestGateEvent" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="FlashlightFlickerFix" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="FogFix" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="FogLayerFix" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="FogParameterFix" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="FogSpeedFix" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="GameLoadFix" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="HalogenLightFix" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="HospitalChaseFix" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="HotelWaterFix" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="ImproveStorageSupport" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="IncreaseBlood" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="IncreaseDrawDistance" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="LightingFix" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="LightingTransitionFix" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="PauseScreenFix" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="PistonRoomFix" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="PS2CameraSpeed" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="PS2FlashlightBrightness" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="PS2StyleNoiseFilter" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="RemoveEnvironmentFlicker" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="RemoveEffectsFlicker" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="RestoreSpecialFX" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="Room312ShadowFix" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="RoomLightingFix" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="RowboatAnimationFix" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="SetBlackPillarBoxes" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="SpecularFix" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="SteamCrashFix" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="UsePS2LowResTextures" type="check">
+				<Value tip="Disable" default="1">0</Value>
+				<Value tip="Enable">1</Value>
+			</Option>
+			<Option name="WhiteShaderFix" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="WoodsideRoom205Fix" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+		</Section>
+	
+		<Section name="FOG SETTINGS" id="10">
+			<Option name="fog_transparency_layer1" type="invisible">
+				<Value>128</Value>
+			</Option>
+			<Option name="fog_transparency_layer2" type="invisible">
+				<Value>112</Value>
+			</Option>
+			<Option name="fog_layer1_x1" type="invisible">
+				<Value>0.250</Value>
+			</Option>
+			<Option name="fog_layer1_x2" type="invisible">
+				<Value>0.250</Value>
+			</Option>
+			<Option name="fog_layer1_y1" type="invisible">
+				<Value>0.125</Value>
+			</Option>
+			<Option name="fog_layer1_y2" type="invisible">
+				<Value>0.125</Value>
+			</Option>
+			<Option name="fog_layer2_density_mult" type="invisible">
+				<Value>1.4</Value>
+			</Option>
+			<Option name="fog_layer2_density_add" type="invisible">
+				<Value>100.0</Value>
+			</Option>
+			<Option name="fog_layer2_complexity" type="invisible">
+				<Value>0.055</Value>
+			</Option>
+		</Section>
+	
+		<Section name="FONT SETTINGS" id="11">
+			<Option name="UseCustomFonts" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="DisableEnlargedText" type="check">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="CustomFontCol" type="invisible">
+				<Value>100</Value>
+			</Option>
+			<Option name="CustomFontRow" type="invisible">
+				<Value>14</Value>
+			</Option>
+			<Option name="CustomFontCharWidth" type="invisible">
+				<Value>20</Value>
+			</Option>
+			<Option name="CustomFontCharHeight" type="invisible">
+				<Value>32</Value>
+			</Option>
+			<Option name="LetterSpacing" type="invisible">
+				<Value>2</Value>
+			</Option>
+			<Option name="NormalFontWidth" type="invisible">
+				<Value>20</Value>
+			</Option>
+			<Option name="NormalFontHeight" type="invisible">
+				<Value>30</Value>
+			</Option>
+			<Option name="SmallFontWidth" type="invisible">
+				<Value>16</Value>
+			</Option>
+			<Option name="SmallFontHeight" type="invisible">
+				<Value>24</Value>
+			</Option>
+			<Option name="SpaceSize" type="invisible">
+				<Value>7</Value>
+			</Option>
+		</Section>
+	
+		<Section name="PLUGINS" id="12">
+			<Option name="LoadPlugins" type="check">
+				<Value tip="Disable" default="1">0</Value>
+				<Value tip="Enable">1</Value>
+			</Option>
+			<Option name="LoadFromScriptsOnly" type="check">
+				<Value tip="Disable" default="1">0</Value>
+				<Value tip="Enable">1</Value>
+			</Option>
+			<Option name="LoadD3d8FromScriptsFolder" type="check">
+				<Value tip="Disable" default="1">0</Value>
+				<Value tip="Enable">1</Value>
+			</Option>
+		</Section>
+	</Sections>
+
+	<Groups>
+		<Group id="GRP_DISPLAY">
+			<Sub id="SUB_DISPLAYRENDER">
+				<Opt sec="RESOLUTION &amp; DISPLAY SETTINGS" op="ScreenMode"/>
+				<Opt sec="RESOLUTION &amp; DISPLAY SETTINGS" op="WndModeBorder"/>
+				<Opt sec="RESOLUTION &amp; DISPLAY SETTINGS" op="DynamicResolution"/>
+				<Opt sec="RESOLUTION &amp; DISPLAY SETTINGS" op="WidescreenFix"/>
+			</Sub>
+			<Sub id="SUB_DIRECTX">
+				<Opt sec="DIRECTX SETTINGS" op="d3d8to9"/>
+			</Sub>
+			<Sub id="SUB_SHADERS">
+				<Opt sec="DIRECTX SETTINGS" op="AdjustColorTemp"/>
+				<Opt sec="DIRECTX SETTINGS" op="EnableSMAA"/>
+				<Opt sec="DIRECTX SETTINGS" op="RestoreBrightnessSelector"/>
+			</Sub>
+			<Sub id="SUB_HUD">
+				<Opt sec="HUD &amp; NOISE FILTER SETTINGS" op="DisableRedCrossInCutScenes"/>
+				<Opt sec="HUD &amp; NOISE FILTER SETTINGS" op="DisableRedCross"/>
+				<Opt sec="HUD &amp; NOISE FILTER SETTINGS" op="IncreaseNoiseEffectRes"/>
+			</Sub>
+			<Sub id="SUB_MEDIA">
+				<Opt sec="FULLSCREEN MEDIA SETTINGS" op="FullscreenImages"/>
+				<Opt sec="FULLSCREEN MEDIA SETTINGS" op="FullscreenVideos"/>
+			</Sub>
+			<Sub id="SUB_CUTSCENES">
+				<Opt sec="CUTSCENE SETTINGS" op="DisableCutsceneBorders"/>
+				<Opt sec="CUTSCENE SETTINGS" op="ReduceCutsceneFOV"/>
+			</Sub>
+		</Group>
+		<Group id="GRP_PERFORMANCE">
+		</Group>
+		<Group id="GRP_ADVANCED">
+		</Group>
+		<Group id="GRP_CONTROLLER">
+		</Group>
+		<Group id="GRP_GAMEFIXES">
+		</Group>
+		<Group id="GRP_OTHER">
+		</Group>
+	</Groups>
+	
+	<Strings>
+		<S id="GRP_DISPLAY">Display and Visuals</S>
+		<S id="SUB_DISPLAYRENDER">Display &amp;&amp; Render Settings</S>
+		<S id="SUB_DIRECTX">DirectX</S>
+		<S id="SUB_SHADERS">Shaders</S>
+		<S id="SUB_HUD">HUD &amp;&amp; Noise Filter</S>
+		<S id="SUB_MEDIA">Fullscreen Media</S>
+		<S id="SUB_CUTSCENES">Cutscenes</S>
+		<S id="GRP_PERFORMANCE">Performance</S>
+		<S id="GRP_ADVANCED">Advanced</S>
+		<S id="GRP_CONTROLLER">Controller</S>
+		<S id="GRP_GAMEFIXES">Game Fixes</S>
+		<S id="GRP_OTHER">Other</S>
+		<S id="0">Display</S>
+		<S id="1">DirectX</S>
+		<S id="2">Performance</S>
+		<S id="3">Advanced</S>
+		<S id="4">Controller</S>
+		<S id="5">Hud and Noise filter</S>
+		<S id="6">Cutscenes</S>
+		<S id="7">Images and videos</S>
+		<S id="8">Menu and language</S>
+		<S id="9">Game fixes</S>
+		<S id="10">Fog</S>
+		<S id="11">Font</S>
+		<S id="12">Plugins</S>
+		<S id="13">Display Mode</S>
+		<S id="14">Screen mode description.</S>
+		<S id="15">Windowed</S>
+		<S id="16">Borderless windowed</S>
+		<S id="17">Fullscreen</S>
+		<S id="18">Window Border</S>
+		<S id="19">Window mode border description</S>
+		<S id="20">Dynamic Resolution</S>
+		<S id="21">Dynamic resolution description</S>
+		<S id="22">Widescreen Fix</S>
+		<S id="23">Widescreen fix description</S>
+		<S id="OPT_D3D8TO9">Run the game in DirectX 9 (required to use shaders below)</S>
+		<S id="OPT_CUTSCENE_BORDERS">Disable Cutscene Borders</S>
+		<S id="OPT_CUTSCENE_REDUCE_FOV">Scale Cutscene FOV</S>
+		<S id="OPT_HUD_LHI_CUT">Disable Low Health Indicator (Cutscenes Only)</S>
+		<S id="OPT_HUD_LHI">Disable Low Health Indicator</S>
+		<S id="OPT_HUD_NOISE">Adjust Noise Filter Grain</S>
+		<S id="OPT_MEDIA_IMAGE">Fullscreen Image Scaling</S>
+		<S id="OPT_MEDIA_FMV">FMV Scaling</S>
+		<S id="OPT_SHADER_TEMP">Color Temperature Fix</S>
+		<S id="OPT_SHADER_SMAA">SMAA (Anti-Aliasing)</S>
+		<S id="OPT_SHADER_BRIGHT">Restore Brightness Selector</S>
+	</Strings>
+</Config>

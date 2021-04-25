@@ -2,7 +2,7 @@
 //
 
 #include "framework.h"
-#include "resource.h"
+#include "resources.h"
 #include "CWnd.h"
 #include "CConfig.h"
 #include <memory>

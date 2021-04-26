@@ -53,7 +53,7 @@ public:
 	{
 		CWnd::CreateWindow(WC_BUTTONW, lpName, WS_CHILD | BS_GROUPBOX | WS_VISIBLE, X, Y, Width, Height, hParent, hInstance);
 		SendMessageW(*this, WM_SETFONT, (LPARAM)hFont, TRUE);
-		SetWindowLongW(*this, GWLP_USERDATA, (LONG)this);
+		SetWindowLongPtrW(*this, GWLP_USERDATA, (LONG_PTR)this);
 	}
 };
 
@@ -64,7 +64,7 @@ public:
 	{
 		CWnd::CreateWindow(WC_BUTTONW, lpName, WS_CHILD | BS_PUSHBUTTON | WS_VISIBLE, X, Y, Width, Height, hParent, hInstance);
 		SendMessageW(*this, WM_SETFONT, (LPARAM)hFont, TRUE);
-		SetWindowLongW(*this, GWLP_USERDATA, (LONG)this);
+		SetWindowLongPtrW(*this, GWLP_USERDATA, (LONG_PTR)this);
 	}
 };
 
@@ -75,7 +75,7 @@ public:
 	{
 		CWnd::CreateWindow(WC_TABCONTROLW, L"", WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE | TCS_MULTILINE, X, Y, Width, Height, hParent, hInstance);
 		SendMessageW(*this, WM_SETFONT, (LPARAM)hFont, TRUE);
-		SetWindowLongW(*this, GWLP_USERDATA, (LONG)this);
+		SetWindowLongPtrW(*this, GWLP_USERDATA, (LONG_PTR)this);
 	}
 
 	void InsertItem(int index, LPCWSTR lpString)
@@ -96,7 +96,7 @@ public:
 
 	int GetCurSel()
 	{
-		return SendMessageW(*this, TCM_GETCURSEL, 0, 0);
+		return (int)SendMessageW(*this, TCM_GETCURSEL, 0, 0);
 	}
 
 	void GetRect(RECT& rect)
@@ -115,8 +115,8 @@ public:
 		this->hFont = hFont;
 		uAlign = Align;
 		CWnd::CreateWindow(WC_STATICW, lpName, SS_LEFT | WS_VISIBLE | WS_CHILD | WS_CLIPCHILDREN, X, Y, Width, Height, hParent, hInstance);
-		SetWindowLongW(*this, GWLP_USERDATA, (LONG)this);
-		SetWindowLongW(*this, GWLP_WNDPROC, (LONG)proc);
+		SetWindowLongPtrW(*this, GWLP_USERDATA, (LONG_PTR)this);
+		old_proc = (WNDPROC)SetWindowLongPtrW(*this, GWLP_WNDPROC, (LONG_PTR)proc);
 		SendMessageW(*this, WM_SETFONT, (LPARAM)hFont, TRUE);
 	}
 
@@ -138,7 +138,7 @@ public:
 		SetBkMode(hdc, TRANSPARENT);
 		SelectObject(hdc, hFont);
 		SIZE size;
-		GetTextExtentPoint32W(hdc, szText.c_str(), szText.size(), &size);
+		GetTextExtentPoint32W(hdc, szText.c_str(), (int)szText.size(), &size);
 #if 0
 		int Y = 0;
 		switch (c->uAlign)
@@ -156,7 +156,7 @@ public:
 		case 1: Y = (rc.bottom - size.cy) / 2; rc.top += Y; rc.bottom -= Y; break;
 		case 2: Y = rc.bottom - size.cy; rc.top += Y; rc.bottom -= Y; break;
 		}
-		DrawTextExW(hdc, (LPWSTR)szText.c_str(), szText.size(), &rc, DT_LEFT | DT_WORDBREAK, nullptr);
+		DrawTextExW(hdc, (LPWSTR)szText.c_str(), (int)szText.size(), &rc, DT_LEFT | DT_WORDBREAK, nullptr);
 #endif
 	}
 
@@ -167,7 +167,7 @@ public:
 
 	static LRESULT CALLBACK proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 	{
-		CCtrlStatic* c = reinterpret_cast<CCtrlStatic*>(GetWindowLongW(hWnd, GWLP_USERDATA));
+		CCtrlStatic* c = reinterpret_cast<CCtrlStatic*>(GetWindowLongPtrW(hWnd, GWLP_USERDATA));
 
 		switch (Msg)
 		{
@@ -211,7 +211,7 @@ public:
 	{
 		CWnd::CreateWindow(WC_COMBOBOXW, L"", CBS_DROPDOWNLIST | WS_VSCROLL | WS_VISIBLE | WS_CHILD | WS_VSCROLL, X, Y, Width, Height, hParent, hInstance);
 		SendMessageW(*this, WM_SETFONT, (LPARAM)hFont, TRUE);
-		SetWindowLongW(*this, GWLP_USERDATA, (LONG)this);
+		SetWindowLongPtrW(*this, GWLP_USERDATA, (LONG_PTR)this);
 
 		tType = TYPE_LIST;
 	}
@@ -219,7 +219,7 @@ public:
 	void Reset() { SendMessageW(*this, CB_RESETCONTENT, 0, 0); }
 	void AddString(LPCWSTR lpString) { SendMessageW(*this, CB_ADDSTRING, 0, (LPARAM)lpString); }
 
-	int GetSelection() { return SendMessageW(*this, CB_GETCURSEL, 0, 0); }
+	int GetSelection() { return (int)SendMessageW(*this, CB_GETCURSEL, 0, 0); }
 	void SetSelection(int sel) { SendMessageW(*this, CB_SETCURSEL, sel, 0); }
 };
 
@@ -294,8 +294,8 @@ public:
 	virtual void CreateWindow(LPCWSTR lpName, int X, int Y, int Width, int Height, HWND hParent, HINSTANCE hInstance, HFONT hFont)
 	{
 		box.CreateWindow(lpName, X, Y, Width, Height, hParent, hInstance, hFont);
-		SetWindowLongW(box, GWLP_USERDATA, (LONG)this);
-		old = (WNDPROC)SetWindowLongW(box, GWLP_WNDPROC, (LONG)proc);
+		SetWindowLongPtrW(box, GWLP_USERDATA, (LONG_PTR)this);
+		old = (WNDPROC)SetWindowLongPtrW(box, GWLP_WNDPROC, (LONG_PTR)proc);
 	}
 	virtual void Release()
 	{
@@ -307,7 +307,7 @@ public:
 
 	static LRESULT CALLBACK proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 	{
-		CFieldCombo* box = (CFieldCombo*)GetWindowLongW(hWnd, GWLP_USERDATA);
+		CFieldCombo* box = (CFieldCombo*)GetWindowLongPtrW(hWnd, GWLP_USERDATA);
 
 		switch (Msg)
 		{
@@ -336,10 +336,10 @@ public:
 		hStatic.CreateWindow(lpName, X, Y, Width - sub, Height, hParent, hInstance, hFont);
 		hList.CreateWindow(X + Width - sub, Y, sub, Height, hParent, hInstance, hFont);
 
-		SetWindowLongW(hStatic, GWLP_USERDATA, (LONG)this);
-		SetWindowLongW(hList,   GWLP_USERDATA, (LONG)this);
-		old_static = (WNDPROC)SetWindowLongW(hStatic, GWLP_WNDPROC, (LONG)proc_static);
-		old_list   = (WNDPROC)SetWindowLongW(hList,   GWLP_WNDPROC, (LONG)proc_list);
+		SetWindowLongPtrW(hStatic, GWLP_USERDATA, (LONG_PTR)this);
+		SetWindowLongPtrW(hList,   GWLP_USERDATA, (LONG_PTR)this);
+		old_static = (WNDPROC)SetWindowLongPtrW(hStatic, GWLP_WNDPROC, (LONG_PTR)proc_static);
+		old_list   = (WNDPROC)SetWindowLongPtrW(hList,   GWLP_WNDPROC, (LONG_PTR)proc_list);
 	}
 	virtual void Release()
 	{
@@ -355,7 +355,7 @@ public:
 
 	static LRESULT CALLBACK proc_list(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 	{
-		CFieldList* list = (CFieldList*)GetWindowLongW(hWnd, GWLP_USERDATA);
+		CFieldList* list = (CFieldList*)GetWindowLongPtrW(hWnd, GWLP_USERDATA);
 
 		switch (Msg)
 		{
@@ -373,7 +373,7 @@ public:
 
 	static LRESULT CALLBACK proc_static(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 	{
-		CFieldList* st = (CFieldList*)GetWindowLongW(hWnd, GWLP_USERDATA);
+		CFieldList* st = (CFieldList*)GetWindowLongPtrW(hWnd, GWLP_USERDATA);
 
 		switch (Msg)
 		{

@@ -1,4 +1,5 @@
 #include "CConfig.h"
+#include "Settings.h"	// Elisha's ini loader
 
 /////////////////////////////////////////////////
 // Various helpers
@@ -14,7 +15,7 @@ std::string SAFESTR(const char *X)
 wchar_t* MultiToWide(const char* multi)
 {
 	// gather size of the new string and create a buffer
-	size_t size = MultiByteToWideChar(CP_UTF8, 0, multi, -1, NULL, 0);
+	int size = MultiByteToWideChar(CP_UTF8, 0, multi, -1, NULL, 0);
 	wchar_t* wide = new wchar_t[size];
 	// fill allocated string with converted data
 	MultiByteToWideChar(CP_UTF8, 0, multi, -1, wide, size);
@@ -90,7 +91,50 @@ void CConfig::ParseXml()
 
 void CConfig::SetDefault()
 {
+	for (size_t i = 0, si = section.size(); i < si; i++)
+		for (size_t j = 0, sj = section[i].option.size(); j < sj; j++)
+			section[i].option[j].SetValueDefault();
+}
 
+void __stdcall ParseCallback(char* lpName, char* lpValue, void *lpParam)
+{
+	// Check for valid entries
+	if (!Ini_IsValidSettings(lpName, lpValue)) return;
+
+	auto list = reinterpret_cast<std::vector<CConfigOption*>*>(lpParam);
+	for (size_t i = 0, si = list->size(); i < si; i++)
+	{
+		if ((*list)[i]->name.compare(lpName) == 0)
+		{
+			(*list)[i]->SetValueFromName(lpValue);
+			return;
+		}
+	}
+
+#if _DEBUG
+	char mes[64];
+	sprintf_s(mes, 64, "Orphaned setting: %s %s\n", lpName, lpValue);
+	OutputDebugStringA(mes);
+#endif;
+}
+
+void CConfig::SetFromIni()
+{
+	// attempt to load the ini
+	auto ini = Ini_Read(L"d3d8.ini");
+	if (ini == nullptr) return;
+
+	// build reference to all options for quicker callback parsing
+	std::vector<CConfigOption*> list;
+	for (size_t i = 0, si = section.size(); i < si; i++)
+		for (size_t j = 0, sj = section[i].option.size(); j < sj; j++)
+			list.push_back(&section[i].option[j]);
+
+	// do the parsing (can be slightly slow)
+	Ini_Parse(ini, ParseCallback, (void*)&list);
+
+	// done, disengage!
+	free(ini);
 }
 
 std::wstring CConfig::GetSectionString(int sec)
@@ -207,6 +251,7 @@ void CConfigValue::Parse(XMLElement& xml)
 	name = SAFESTR(xml.Attribute("tip"));
 	id = SAFESTR(xml.Attribute("id"));
 	is_default = xml.IntAttribute("default", 0);
+	val = SAFESTR(xml.GetText());
 }
 
 /////////////////////////////////////////////////

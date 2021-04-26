@@ -24,12 +24,10 @@ LRESULT CALLBACK TabProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
 CConfig cfg;
 
-int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-					 _In_opt_ HINSTANCE hPrevInstance,
-					 _In_ LPWSTR    lpCmdLine,
-					 _In_ int       nCmdShow)
+int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
 	cfg.ParseXml();
+	cfg.SetFromIni();
 	// Initialize global strings
 	InitCommonControls();
 	MyRegisterClass(hInstance);
@@ -123,7 +121,7 @@ std::shared_ptr<CCombined> MakeControl(CWnd &hParent, int section, int option, i
 		c = std::make_shared<CFieldList>();
 		c->CreateWindow(name.c_str(), X, Y, W - 20, 25, hParent, hInst, hFont);
 		for (size_t j = 0, sj = cfg.section[section].option[option].value.size(); j < sj; j++)
-			c->AddString(cfg.GetValueString(section, option, j).c_str());
+			c->AddString(cfg.GetValueString(section, option, (int)j).c_str());
 		c->SetHover(name.c_str(), desc.c_str(), &hDesc);
 		// set current value
 		c->SetConfigPtr(&cfg.section[section].option[option]);
@@ -174,7 +172,7 @@ void PopulateTab(int section)
 		int rows = ((count + 1) & ~1) / 2;
 
 		std::shared_ptr<CCtrlGroup> gp = std::make_shared<CCtrlGroup>();
-		gp->CreateWindow(cfg.GetGroupLabel(section, i).c_str(), rect.left + 2, Y + rect.top - 20, rect.right - rect.left - 6, rows * 25 + 30, hTab, hInst, hFont);
+		gp->CreateWindow(cfg.GetGroupLabel(section, (int)i).c_str(), rect.left + 2, Y + rect.top - 20, rect.right - rect.left - 6, rows * 25 + 30, hTab, hInst, hFont);
 		hGroup.push_back(gp);
 
 		RECT gp_rect;
@@ -186,7 +184,7 @@ void PopulateTab(int section)
 		{
 			int sec, opt;
 			cfg.FindSectionAndOption(cfg.group[section].sub[i].opt[j].sec, cfg.group[section].sub[i].opt[j].op, sec, opt);
-			hCtrl.push_back(MakeControl(hTab, sec, opt, pos, rect, Y));
+			hCtrl.push_back(MakeControl(hTab, sec, opt, (int)pos, rect, Y));
 		}
 
 		Y += gp_rect.bottom - gp_rect.top;
@@ -206,8 +204,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	hTab.CreateWindow(0, 0, r.right, r.bottom - 132, hWnd, hInstance, hFont);
 	for (size_t i = 0, si = cfg.group.size(); i < si; i++)
-		hTab.InsertItem(i, cfg.GetGroupString(i).c_str());
-	TabProc_old = (WNDPROC)SetWindowLongW(hTab, GWLP_WNDPROC, (LONG)TabProc);
+		hTab.InsertItem((int)i, cfg.GetGroupString((int)i).c_str());
+	TabProc_old = (WNDPROC)SetWindowLongPtrW(hTab, GWLP_WNDPROC, (LONG_PTR)TabProc);
 
 	hDesc.CreateWindow(2, r.bottom - 130, r.right - 4, 98, hWnd, hInstance, hFont, hBold);
 
@@ -236,14 +234,14 @@ LRESULT CALLBACK TabProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 		{
 		case CBN_SELCHANGE:
 			{
-				CCombined* wnd = reinterpret_cast<CCombined*>(GetWindowLongW((HWND)lParam, GWLP_USERDATA));
+				CCombined* wnd = reinterpret_cast<CCombined*>(GetWindowLongPtrW((HWND)lParam, GWLP_USERDATA));
 				int sel = wnd->GetSelection();
 				wnd->SetConfigValue(sel);
 			}
 			break;
 		case BN_CLICKED:
 			{
-				CCombined* wnd = reinterpret_cast<CCombined*>(GetWindowLongW((HWND)lParam, GWLP_USERDATA));
+				CCombined* wnd = reinterpret_cast<CCombined*>(GetWindowLongPtrW((HWND)lParam, GWLP_USERDATA));
 				bool checked = wnd->GetCheck();
 				wnd->SetConfigValue(checked);
 			}

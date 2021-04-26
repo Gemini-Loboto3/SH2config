@@ -14,8 +14,9 @@ class CConfigValue
 public:
 	void Parse(XMLElement& xml);
 
-	std::string name;		// ini entry name
+	std::string name;		// default visualized entry name
 	std::string id;			// string id
+	std::string val;		// value in the ini
 	bool is_default;		// if this is true, this index is the default value
 };
 
@@ -23,6 +24,32 @@ class CConfigOption
 {
 public:
 	void Parse(XMLElement& xml);
+	void SetValueFromName(const char* name)
+	{
+		for (size_t i = 0, si = value.size(); i < si; i++)
+		{
+			if (value[i].val.compare(name) == 0)
+			{
+				cur_val = i;
+				return;
+			}
+		}
+
+		// nothing found, load default
+		SetValueDefault();
+	}
+	void SetValueDefault()
+	{
+		// nothing found, load default
+		for (size_t i = 0, si = value.size(); i < si; i++)
+		{
+			if (value[i].is_default)
+			{
+				cur_val = i;
+				return;
+			}
+		}
+	}
 
 	std::string name;		// option name
 	std::string id, desc;	// string references
@@ -45,6 +72,17 @@ class CConfigSection
 {
 public:
 	void Parse(XMLElement& xml);
+	void SetValueFromName(const char* section, const char* value)
+	{
+		for (size_t i = 0, si = option.size(); i < si; i++)
+		{
+			if (option[i].name.compare(section) == 0)
+			{
+				option[i].SetValueFromName(value);
+				return;
+			}
+		}
+	}
 
 	std::string name;	// section name
 	std::vector<CConfigOption> option;	// options for this section
@@ -156,6 +194,7 @@ class CConfig
 public:
 	void ParseXml();
 	void SetDefault();
+	void SetFromIni();
 
 	std::vector<CConfigSection> section;	// ini hierarchy used to parse and rebuild d3d8.ini
 	std::vector<CConfigGroup> group;		// ini groups, represented as tabs on interface (it's only for grouping, doesn't influence ini structure)
@@ -171,8 +210,8 @@ public:
 				auto xh = XXH64(section[i].option[j].name.c_str(), section[i].option[j].name.size(), 0);
 				if (xs == ss && xh == sh)
 				{
-					found_sec = i;
-					found_opt = j;
+					found_sec = (int)i;
+					found_opt = (int)j;
 					return;
 				}
 			}

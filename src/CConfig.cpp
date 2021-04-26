@@ -88,6 +88,11 @@ void CConfig::ParseXml()
 	string.Sort();
 }
 
+void CConfig::SetDefault()
+{
+
+}
+
 std::wstring CConfig::GetSectionString(int sec)
 {
 	auto id = string.Find(section[sec].id);
@@ -123,7 +128,16 @@ std::wstring CConfig::GetOptionString(int sec, int opt)
 
 	return id;
 }
-std::wstring CConfig::GetOptionDesc(int sec, int opt) { return L""; }
+
+std::wstring CConfig::GetOptionDesc(int sec, int opt)
+{
+	auto id = string.Find(section[sec].option[opt].desc);
+	if (id.size() == 0)
+		return MultiToWide_s(section[sec].option[opt].desc);
+
+	return id;
+}
+
 std::wstring CConfig::GetValueString(int sec, int opt, int val)
 {
 	auto id = string.Find(section[sec].option[opt].value[val].id);
@@ -172,13 +186,18 @@ void CConfigOption::Parse(XMLElement& xml)
 	desc = SAFESTR(xml.Attribute("desc"));
 
 	auto s = xml.FirstChildElement("Value");
+	int i = 0;
 	while (s)
 	{
 		CConfigValue val;
 		val.Parse(*s);
+		// if this is the default value, flag is as the active selection
+		if (val.is_default)
+			cur_val = i;
 		value.push_back(val);
 
 		s = s->NextSiblingElement("Value");
+		i++;
 	}
 }
 

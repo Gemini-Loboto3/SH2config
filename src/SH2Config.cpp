@@ -19,6 +19,9 @@ ATOM				MyRegisterClass(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 
+WNDPROC TabProc_old;
+LRESULT CALLBACK TabProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
+
 CConfig cfg;
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -38,7 +41,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		lf.lfItalic, lf.lfUnderline, lf.lfStrikeOut, lf.lfCharSet,
 		lf.lfOutPrecision, lf.lfClipPrecision, lf.lfQuality,
 		lf.lfPitchAndFamily, lf.lfFaceName);
-	hBold = CreateFont(lf.lfHeight - 5, lf.lfWidth/* - 5*/,
+	hBold = CreateFont(lf.lfHeight - 4, lf.lfWidth/* - 5*/,
 		lf.lfEscapement, lf.lfOrientation, lf.lfWeight * 2,
 		lf.lfItalic, lf.lfUnderline, lf.lfStrikeOut, lf.lfCharSet,
 		lf.lfOutPrecision, lf.lfClipPrecision, lf.lfQuality,
@@ -92,34 +95,45 @@ CCtrlDescription hDesc;
 std::vector<std::shared_ptr<CCombined>> hCtrl;
 std::vector<std::shared_ptr<CCtrlGroup>> hGroup;
 
-std::shared_ptr<CCombined> MakeControl(int section, int option, int pos, RECT tab, int base_Y)
+std::shared_ptr<CCombined> MakeControl(CWnd &hParent, int section, int option, int pos, RECT tab, int base_Y)
 {
 	std::shared_ptr<CCombined> c;
 	int W = (tab.right - tab.left - 40) / 2;
-	int X = tab.left + 10 + (pos % 2) * W;
+	int X = tab.left + 16 + (pos % 2) * W;
 	int Y = tab.top + (pos / 2) * 25 + base_Y;
+
+	std::wstring name, desc;
+	name = cfg.GetOptionString(section, option).c_str();
+	desc = cfg.GetOptionDesc(section, option).c_str();
 
 	switch (cfg.section[section].option[option].type)
 	{
 	case CConfigOption::TYPE_CHECK:
 	{
 		c = std::make_shared<CFieldCombo>();
-		c->CreateWindow(cfg.GetOptionString(section, option).c_str(), X, Y, W - 20, 25, hTab, hInst, hFont);
+		c->CreateWindow(name.c_str(), X, Y, W - 20, 25, hParent, hInst, hFont);
+		c->SetHover(name.c_str(), desc.c_str(), &hDesc);
+		// set current value
+		c->SetConfigPtr(&cfg.section[section].option[option]);
+		c->SetCheck((bool)c->cValue->cur_val);
 	}
 	break;
 	case CConfigOption::TYPE_LIST:
 	{
 		c = std::make_shared<CFieldList>();
-		c->CreateWindow(cfg.GetOptionString(section, option).c_str(), X, Y, W - 20, 25, hTab, hInst, hFont);
+		c->CreateWindow(name.c_str(), X, Y, W - 20, 25, hParent, hInst, hFont);
 		for (size_t j = 0, sj = cfg.section[section].option[option].value.size(); j < sj; j++)
 			c->AddString(cfg.GetValueString(section, option, j).c_str());
-		c->SetSelection(0);
+		c->SetHover(name.c_str(), desc.c_str(), &hDesc);
+		// set current value
+		c->SetConfigPtr(&cfg.section[section].option[option]);
+		c->SetSelection(c->cValue->cur_val);
 	}
 	break;
 	case CConfigOption::TYPE_PAD:
 	{
 		c = std::make_shared<CFieldList>();
-		c->CreateWindow(cfg.GetOptionString(section, option).c_str(), X, Y, W - 20, 25, hTab, hInst, hFont);
+		c->CreateWindow(cfg.GetOptionString(section, option).c_str(), X, Y, W - 20, 25, hParent, hInst, hFont);
 		// TODO: populate list with controller enumeration
 	}
 	break;
@@ -131,11 +145,16 @@ std::shared_ptr<CCombined> MakeControl(int section, int option, int pos, RECT ta
 		break;
 	}
 
+	
+
 	return c;
 }
 
 void PopulateTab(int section)
 {
+	hDesc.SetCaption(cfg.GetGroupString(section).c_str());
+	hDesc.SetText(L"");
+
 	for (size_t i = 0, si = hCtrl.size(); i < si; i++)
 		hCtrl[i]->Release();
 	hCtrl.clear();
@@ -167,68 +186,30 @@ void PopulateTab(int section)
 		{
 			int sec, opt;
 			cfg.FindSectionAndOption(cfg.group[section].sub[i].opt[j].sec, cfg.group[section].sub[i].opt[j].op, sec, opt);
-			hCtrl.push_back(MakeControl(sec, opt, pos, rect, Y));
+			hCtrl.push_back(MakeControl(hTab, sec, opt, pos, rect, Y));
 		}
 
 		Y += gp_rect.bottom - gp_rect.top;
-
-		//std::shared_ptr<CCombined> c;
-		//
-		//switch (cfg.section[section].option[i].type)
-		//{
-		//	case CConfigOption::TYPE_CHECK:
-		//	{
-		//		c = std::make_shared<CFieldCombo>();
-		//		c->CreateWindow(cfg.GetOptionString(section, i).c_str(), 20, 50 + i * 25, 550, 25, hTab, hInst, hFont);
-		//	}
-		//	break;
-		//case CConfigOption::TYPE_LIST:
-		//	{
-		//		c = std::make_shared<CFieldList>();
-		//		c->CreateWindow(cfg.GetOptionString(section, i).c_str(), 20, 50 + i * 25, 550, 25, hTab, hInst, hFont);
-		//		for (size_t j = 0, sj = cfg.section[section].option[i].value.size(); j < sj; j++)
-		//			c->AddString(cfg.GetValueString(section, i, j).c_str());
-		//		c->SetSelection(0);
-		//	}
-		//	break;
-		//case CConfigOption::TYPE_PAD:
-		//	{
-		//		c = std::make_shared<CFieldList>();
-		//		c->CreateWindow(cfg.GetOptionString(section, i).c_str(), 20, 50 + i * 25, 550, 25, hTab, hInst, hFont);
-		//		// TODO: populate list with controller enumeration
-		//	}
-		//	break;
-		//case CConfigOption::TYPE_TEXT:
-		//	c = std::make_shared<CCombined>();
-		//	break;
-		//case CConfigOption::TYPE_UNK:
-		//	c = std::make_shared<CCombined>();
-		//	break;
-		//}
-
-
-		//hCtrl.push_back(c);
 	}
 }
 
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	hInst = hInstance; // Store instance handle in our global variable
-
-	//HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-	//   CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 	hWnd.CreateWindow(L"SH2CONFIG", L"Silent Hill 2 Enhanced Edition Configuration Tool", WS_OVERLAPPEDWINDOW & ~(WS_MAXIMIZEBOX | WS_THICKFRAME),
 		CW_USEDEFAULT, CW_USEDEFAULT, 800, 600, nullptr, hInstance);
+	if (!hWnd)
+		return FALSE;
 
 	RECT r;
 	GetClientRect(hWnd, &r);
 
-	hTab.CreateWindow(0, 0, r.right, r.bottom - 130, hWnd, hInstance, hFont);
+	hTab.CreateWindow(0, 0, r.right, r.bottom - 132, hWnd, hInstance, hFont);
 	for (size_t i = 0, si = cfg.group.size(); i < si; i++)
 		hTab.InsertItem(i, cfg.GetGroupString(i).c_str());
-	PopulateTab(0);
+	TabProc_old = (WNDPROC)SetWindowLongW(hTab, GWLP_WNDPROC, (LONG)TabProc);
 
-	hDesc.CreateWindow(0, r.bottom - 128, r.right - 2, 94, hWnd, hInstance, hFont, hBold);
+	hDesc.CreateWindow(2, r.bottom - 130, r.right - 4, 98, hWnd, hInstance, hFont, hBold);
 
 	int Y = r.bottom - 30;
 	hBnClose.CreateWindow(L"Close", 4, Y, 60, 26, hWnd, hInstance, hFont);
@@ -238,10 +219,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	hBnDefault.CreateWindow(L"Save", X, Y, 40, 26, hWnd, hInstance, hFont); X += 44;
 	hBnDefault.CreateWindow(L"Save && Launch Game", X, Y, 120, 26, hWnd, hInstance, hFont);
 
-	if (!hWnd)
-	{
-		return FALSE;
-	}
+	PopulateTab(0);
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
@@ -249,7 +227,35 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	return TRUE;
 }
 
-LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK TabProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+{
+	switch (Msg)
+	{
+	case WM_COMMAND:
+		switch (HIWORD(wParam))
+		{
+		case CBN_SELCHANGE:
+			{
+				CCombined* wnd = reinterpret_cast<CCombined*>(GetWindowLongW((HWND)lParam, GWLP_USERDATA));
+				int sel = wnd->GetSelection();
+				wnd->SetConfigValue(sel);
+			}
+			break;
+		case BN_CLICKED:
+			{
+				CCombined* wnd = reinterpret_cast<CCombined*>(GetWindowLongW((HWND)lParam, GWLP_USERDATA));
+				bool checked = wnd->GetCheck();
+				wnd->SetConfigValue(checked);
+			}
+			break;
+		}
+		break;
+	}
+
+	return CallWindowProcW(TabProc_old, hWnd, Msg, wParam, lParam);
+}
+
+LRESULT CALLBACK WndProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
@@ -257,17 +263,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			CREATESTRUCT* pCS = (CREATESTRUCT*)lParam;
 			CWnd* h = (CWnd*)pCS->lpCreateParams;
-			h->SetWnd(hwnd);
+			h->SetWnd(wnd);
 		}
-		break;
+		return 0;
 	case WM_PAINT:
 		{
 			PAINTSTRUCT ps;
-			HDC hdc = BeginPaint(hwnd, &ps);
+			HDC hdc = BeginPaint(wnd, &ps);
 			// TODO: Add any drawing code that uses hdc here...
-			EndPaint(hwnd, &ps);
+			EndPaint(wnd, &ps);
 		}
-		break;
+		return 0;
 	case WM_DESTROY:
 		bIsLooping = false;
 		PostQuitMessage(0);
@@ -276,12 +282,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		switch (((LPNMHDR)lParam)->code)
 		{
 		case TCN_SELCHANGE:
-			
 			PopulateTab(hTab.GetCurSel());
 			break;
 		}
-	default:
-		return DefWindowProcW(hwnd, message, wParam, lParam);
+		break;
 	}
-	return 0;
+
+	return DefWindowProcW(wnd, message, wParam, lParam);
 }

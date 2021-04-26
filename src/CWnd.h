@@ -2,6 +2,7 @@
 #include "framework.h"
 #include "CommCtrl.h"
 #include <string>
+#include "CConfig.h"
 
 #undef CreateWindow
 
@@ -11,7 +12,8 @@ public:
 	CWnd() :
 		hWnd(0),
 		hWndParent(0),
-		hInst(0)
+		hInst(0),
+		tType(TYPE_WND)
 	{}
 
 	operator HWND() { return hWnd; }
@@ -31,6 +33,14 @@ public:
 	void SetWnd(HWND wnd) { hWnd = wnd; }
 	void SetText(LPCWSTR lpString) { SetWindowTextW(*this, lpString); }
 
+	enum Type
+	{
+		TYPE_WND,
+		TYPE_LIST,
+		TYPE_CHECKBOX
+	};
+	Type tType;
+
 private:
 	HWND hWnd, hWndParent;
 	HINSTANCE hInst;
@@ -43,6 +53,7 @@ public:
 	{
 		CWnd::CreateWindow(WC_BUTTONW, lpName, WS_CHILD | BS_GROUPBOX | WS_VISIBLE, X, Y, Width, Height, hParent, hInstance);
 		SendMessageW(*this, WM_SETFONT, (LPARAM)hFont, TRUE);
+		SetWindowLongW(*this, GWLP_USERDATA, (LONG)this);
 	}
 };
 
@@ -53,6 +64,7 @@ public:
 	{
 		CWnd::CreateWindow(WC_BUTTONW, lpName, WS_CHILD | BS_PUSHBUTTON | WS_VISIBLE, X, Y, Width, Height, hParent, hInstance);
 		SendMessageW(*this, WM_SETFONT, (LPARAM)hFont, TRUE);
+		SetWindowLongW(*this, GWLP_USERDATA, (LONG)this);
 	}
 };
 
@@ -63,6 +75,7 @@ public:
 	{
 		CWnd::CreateWindow(WC_TABCONTROLW, L"", WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE | TCS_MULTILINE, X, Y, Width, Height, hParent, hInstance);
 		SendMessageW(*this, WM_SETFONT, (LPARAM)hFont, TRUE);
+		SetWindowLongW(*this, GWLP_USERDATA, (LONG)this);
 	}
 
 	void InsertItem(int index, LPCWSTR lpString)
@@ -107,7 +120,45 @@ public:
 		SendMessageW(*this, WM_SETFONT, (LPARAM)hFont, TRUE);
 	}
 
-	void SetText(LPCWSTR lpText) { szText = lpText; }
+	bool SetText(LPCWSTR lpText)
+	{
+		if (szText.compare(lpText) == 0)
+			return false;
+		szText = lpText;
+		return true;
+	}
+
+	void OnPaint(HDC hdc)
+	{
+		RECT rc;
+		GetClientRect(*this, &rc);
+
+		FillRect(hdc, &rc, (HBRUSH)(COLOR_WINDOW + 1));
+
+		SetBkMode(hdc, TRANSPARENT);
+		SelectObject(hdc, hFont);
+		SIZE size;
+		GetTextExtentPoint32W(hdc, szText.c_str(), szText.size(), &size);
+#if 0
+		int Y = 0;
+		switch (c->uAlign)
+		{
+		case 0: Y = rc.top; break;
+		case 1: Y = (rc.bottom - size.cy) / 2; break;
+		case 2: Y = rc.bottom - size.cy; break;
+		}
+
+		ExtTextOutW(hdc, 0, Y, ETO_CLIPPED, &rc, c->szText.c_str(), c->szText.size(), nullptr);
+#else
+		int Y;
+		switch (uAlign)
+		{
+		case 1: Y = (rc.bottom - size.cy) / 2; rc.top += Y; rc.bottom -= Y; break;
+		case 2: Y = rc.bottom - size.cy; rc.top += Y; rc.bottom -= Y; break;
+		}
+		DrawTextExW(hdc, (LPWSTR)szText.c_str(), szText.size(), &rc, DT_LEFT | DT_WORDBREAK, nullptr);
+#endif
+	}
 
 	std::wstring szText;
 	WNDPROC old_proc;
@@ -122,25 +173,14 @@ public:
 		{
 		case WM_PAINT:
 		{
-			RECT rc;
 			PAINTSTRUCT ps;
 			HDC hdc = BeginPaint(hWnd, &ps);
-			GetClientRect(hWnd, &rc);
-			SetBkMode(hdc, TRANSPARENT);
-			SelectObject(hdc, c->hFont);
-			SIZE size;
-			GetTextExtentPoint32W(hdc, c->szText.c_str(), c->szText.size(), &size);
-			int Y;
-			switch (c->uAlign)
-			{
-			case 0: Y = rc.top; break;
-			case 1: Y = (rc.bottom - size.cy) / 2; break;
-			case 2: Y = rc.bottom - size.cy; break;
-			}
-			TextOutW(hdc, 0, Y, c->szText.c_str(), c->szText.size());
+			c->OnPaint(hdc);
 			EndPaint(hWnd, &ps);
 			return 0;
 		}
+		case WM_ERASEBKGND:
+			return 0;
 		default:
 			return CallWindowProcW(c->old_proc, hWnd, Msg, wParam, lParam);
 		}
@@ -154,8 +194,10 @@ class CCtrlCheckBox : public CWnd
 public:
 	void CreateWindow(LPCWSTR lpName, int X, int Y, int Width, int Height, HWND hParent, HINSTANCE hInstance, HFONT hFont)
 	{
-		CWnd::CreateWindow(WC_BUTTONW, lpName, BS_CHECKBOX | WS_VISIBLE | WS_CHILD | BS_VCENTER, X, Y, Width, Height, hParent, hInstance);
+		CWnd::CreateWindow(WC_BUTTONW, lpName, BS_AUTOCHECKBOX | WS_VISIBLE | WS_CHILD | BS_VCENTER, X, Y, Width, Height, hParent, hInstance);
 		SendMessageW(*this, WM_SETFONT, (LPARAM)hFont, TRUE);
+
+		tType = TYPE_CHECKBOX;
 	}
 
 	bool GetCheck() { return SendMessageW(*this, BM_GETCHECK, 0, 0) == BST_CHECKED ? true : false; }
@@ -169,6 +211,9 @@ public:
 	{
 		CWnd::CreateWindow(WC_COMBOBOXW, L"", CBS_DROPDOWNLIST | WS_VSCROLL | WS_VISIBLE | WS_CHILD | WS_VSCROLL, X, Y, Width, Height, hParent, hInstance);
 		SendMessageW(*this, WM_SETFONT, (LPARAM)hFont, TRUE);
+		SetWindowLongW(*this, GWLP_USERDATA, (LONG)this);
+
+		tType = TYPE_LIST;
 	}
 
 	void Reset() { SendMessageW(*this, CB_RESETCONTENT, 0, 0); }
@@ -185,23 +230,28 @@ public:
 	{
 		hBack.CreateWindow(WC_STATICW, L"", WS_CHILD | WS_VISIBLE | SS_WHITERECT | SS_RIGHTJUST | WS_BORDER, X, Y, Width, Height, hParent, hInstance);
 		hStrike.CreateWindow(WC_STATICW, L"", WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ, 4, 22, Width - 8, Height, hBack, hInstance);
-		hCaption.CreateWindow(L"AudioClipDetection", 4, 0/*Y + 2*/, Width - 8, 24, hBack, hInstance, hBold, 0);
-		hText.CreateWindow(L"Detects when any audio event is stopped prematurely and fades out the sound to avoid \"popping / clicking\" that would otherwise be heard.", 4, 24/*Y + 17*/, Width - 8, Height - 32, hBack, hInstance, hFont, 0);
+		hCaption.CreateWindow(L"", 4, 2, Width - 8, 20, hBack, hInstance, hBold, 0);
+		hText.CreateWindow(L"", 4, 24, Width - 8, Height - 32, hBack, hInstance, hFont, 0);
 	}
 
 	void SetCaption(LPCWSTR lpCaption)
 	{
-		hCaption.SetText(lpCaption);
-		InvalidateRect(hCaption, nullptr, true);
+		if (hCaption.SetText(lpCaption))
+		{
+			InvalidateRect(hCaption, nullptr, true);
+			UpdateWindow(hCaption);
+		}
 	}
 	void SetText(LPCWSTR lpText)
 	{
-		hText.SetText(lpText);
-		InvalidateRect(hText, nullptr, true);
+		if (hText.SetText(lpText))
+		{
+			InvalidateRect(hText, nullptr, true);
+			UpdateWindow(hText);
+		}
 	}
 
-	CCtrlStatic hCaption,
-		hText;
+	CCtrlStatic hCaption, hText;
 	CWnd hBack, hStrike;
 };
 
@@ -209,8 +259,13 @@ public:
 class CCombined
 {
 public:
+	CCombined() : cCtrl(nullptr),
+		cValue(nullptr)
+	{}
+
 	virtual void CreateWindow(LPCWSTR lpName, int X, int Y, int Width, int Height, HWND hParent, HINSTANCE hInstance, HFONT hFont) {}
 	virtual void Release() {}
+	virtual void SetHover(std::wstring Text, std::wstring Desc, CCtrlDescription* ctrl) { szText = Text; szDesc = Desc; cCtrl = ctrl; }
 	// lists
 	virtual void Reset() {}
 	virtual void AddString(LPCWSTR lpString) {}
@@ -219,6 +274,18 @@ public:
 	// checkboxes
 	virtual bool GetCheck() { return false; }
 	virtual void SetCheck(bool check) {}
+
+	// random shit with configuration
+	void SetConfigPtr(CConfigOption* c) { cValue = c; }
+	void SetConfigValue(int val)
+	{
+		if (cValue)
+			cValue->cur_val = val;
+	}
+
+	std::wstring szText, szDesc;
+	CCtrlDescription* cCtrl;
+	CConfigOption* cValue;
 };
 
 class CFieldCombo : public CCombined
@@ -227,6 +294,8 @@ public:
 	virtual void CreateWindow(LPCWSTR lpName, int X, int Y, int Width, int Height, HWND hParent, HINSTANCE hInstance, HFONT hFont)
 	{
 		box.CreateWindow(lpName, X, Y, Width, Height, hParent, hInstance, hFont);
+		SetWindowLongW(box, GWLP_USERDATA, (LONG)this);
+		old = (WNDPROC)SetWindowLongW(box, GWLP_WNDPROC, (LONG)proc);
 	}
 	virtual void Release()
 	{
@@ -236,7 +305,26 @@ public:
 	virtual bool GetCheck() { return box.GetCheck(); }
 	virtual void SetCheck(bool check) { box.SetCheck(check); }
 
+	static LRESULT CALLBACK proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+	{
+		CFieldCombo* box = (CFieldCombo*)GetWindowLongW(hWnd, GWLP_USERDATA);
+
+		switch (Msg)
+		{
+		case WM_MOUSEMOVE:
+			if (box->cCtrl)
+			{
+				box->cCtrl->SetCaption(box->szText.c_str());
+				box->cCtrl->SetText(box->szDesc.c_str());
+			}
+			break;
+		}
+
+		return box->old(hWnd, Msg, wParam, lParam);
+	}
+
 	CCtrlCheckBox box;
+	WNDPROC old;
 };
 
 class CFieldList : public CCombined
@@ -247,6 +335,11 @@ public:
 		const int sub = 120;
 		hStatic.CreateWindow(lpName, X, Y, Width - sub, Height, hParent, hInstance, hFont);
 		hList.CreateWindow(X + Width - sub, Y, sub, Height, hParent, hInstance, hFont);
+
+		SetWindowLongW(hStatic, GWLP_USERDATA, (LONG)this);
+		SetWindowLongW(hList,   GWLP_USERDATA, (LONG)this);
+		old_static = (WNDPROC)SetWindowLongW(hStatic, GWLP_WNDPROC, (LONG)proc_static);
+		old_list   = (WNDPROC)SetWindowLongW(hList,   GWLP_WNDPROC, (LONG)proc_list);
 	}
 	virtual void Release()
 	{
@@ -260,6 +353,53 @@ public:
 	virtual int GetSelection() { return hList.GetSelection(); }
 	virtual void SetSelection(int sel) { hList.SetSelection(sel); }
 
+	static LRESULT CALLBACK proc_list(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+	{
+		CFieldList* list = (CFieldList*)GetWindowLongW(hWnd, GWLP_USERDATA);
+
+		switch (Msg)
+		{
+		case WM_MOUSEMOVE:
+			if (list->cCtrl)
+			{
+				list->cCtrl->SetCaption(list->szText.c_str());
+				list->cCtrl->SetText(list->szDesc.c_str());
+			}
+			break;
+		}
+
+		return CallWindowProcW(list->old_list, hWnd, Msg, wParam, lParam);
+	}
+
+	static LRESULT CALLBACK proc_static(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+	{
+		CFieldList* st = (CFieldList*)GetWindowLongW(hWnd, GWLP_USERDATA);
+
+		switch (Msg)
+		{
+		case WM_NCHITTEST:
+			if (st->cCtrl)
+			{
+				st->cCtrl->SetCaption(st->szText.c_str());
+				st->cCtrl->SetText(st->szDesc.c_str());
+			}
+			break;
+		case WM_PAINT:
+			{
+				PAINTSTRUCT ps;
+				HDC hdc = BeginPaint(hWnd, &ps);
+				st->hStatic.OnPaint(hdc);
+				EndPaint(hWnd, &ps);
+				return 0;
+			}
+		case WM_ERASEBKGND:
+			return 0;
+		}
+
+		return CallWindowProcW(st->old_static, hWnd, Msg, wParam, lParam);
+	}
+
+	WNDPROC old_list, old_static;
 private:
 	CCtrlStatic hStatic;
 	CCtrlDropBox hList;

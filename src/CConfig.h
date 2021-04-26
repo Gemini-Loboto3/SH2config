@@ -14,9 +14,9 @@ class CConfigValue
 public:
 	void Parse(XMLElement& xml);
 
-	std::string name;
-	std::string id;
-	bool is_default;
+	std::string name;		// ini entry name
+	std::string id;			// string id
+	bool is_default;		// if this is true, this index is the default value
 };
 
 class CConfigOption
@@ -26,7 +26,7 @@ public:
 
 	std::string name;		// option name
 	std::string id, desc;	// string references
-	UINT type;
+	UINT type;				// uses TYPE table to determine the control to use
 
 	enum TYPE
 	{
@@ -37,7 +37,8 @@ public:
 		TYPE_TEXT	// read only
 	};
 
-	std::vector<CConfigValue> value;
+	std::vector<CConfigValue> value;	// values for this option
+	int cur_val;	// current value index
 };
 
 class CConfigSection
@@ -47,7 +48,7 @@ public:
 
 	std::string name;	// section name
 	std::vector<CConfigOption> option;	// options for this section
-	std::string id;		// string references
+	std::string id;		// string reference
 };
 
 // string pool
@@ -134,7 +135,8 @@ public:
 			op = XXH64(option.c_str(), option.size(), 0);
 		}
 
-		XXH64_hash_t sec, op;		// less memory with hashes in this case
+		XXH64_hash_t sec, op;		// section and option from the <Sections> table
+									// uses hashes to make this easier to search
 	};
 	class CConfigSub
 	{
@@ -145,18 +147,19 @@ public:
 	};
 	void Parse(XMLElement& xml);
 
-	std::string id;
-	std::vector<CConfigSub> sub;
+	std::string id;					// string reference id
+	std::vector<CConfigSub> sub;	// list of sub options for this group
 };
 
 class CConfig
 {
 public:
 	void ParseXml();
+	void SetDefault();
 
-	std::vector<CConfigSection> section;	// ini hierarchy
-	std::vector<CConfigGroup> group;		// ini groups, represented as tabs on interface
-	CConfigStrings string;					// string pool
+	std::vector<CConfigSection> section;	// ini hierarchy used to parse and rebuild d3d8.ini
+	std::vector<CConfigGroup> group;		// ini groups, represented as tabs on interface (it's only for grouping, doesn't influence ini structure)
+	CConfigStrings string;					// unicode string pool
 
 	void FindSectionAndOption(XXH64_hash_t ss, XXH64_hash_t sh, int &found_sec, int &found_opt)
 	{

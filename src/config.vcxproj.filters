@@ -39,12 +39,9 @@
     <ClInclude Include="xxhash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="resources.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="config.cpp">
+    <ClCompile Include="SH2Config.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CWnd.cpp">

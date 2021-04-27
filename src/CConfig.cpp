@@ -37,17 +37,18 @@ std::wstring MultiToWide_s(const char* multi)
 }
 
 // crate an std::wstring from utf8 str::string
-std::wstring MultiToWide_s(std::string& multi)
+std::wstring MultiToWide_s(std::string multi)
 {
 	return MultiToWide_s(multi.c_str());
 }
 
 /////////////////////////////////////////////////
 // Actual configuration
-void CConfig::ParseXml()
+bool CConfig::ParseXml()
 {
 	XMLDocument xml;
-	xml.LoadFile("config.xml");
+	if (xml.LoadFile("config.xml"))
+		return true;
 
 	auto root = xml.RootElement();
 	auto s = root->FirstChildElement("Sections");
@@ -87,6 +88,7 @@ void CConfig::ParseXml()
 		sec = sec->NextSiblingElement();
 	}
 	string.Sort();
+	return false;
 }
 
 void CConfig::SetDefault()
@@ -96,48 +98,59 @@ void CConfig::SetDefault()
 			section[i].option[j].SetValueDefault();
 }
 
+struct cb_parse
+{
+	std::vector<CConfigOption*> list;
+	std::string error;
+};
+
 void __stdcall ParseCallback(char* lpName, char* lpValue, void *lpParam)
 {
 	// Check for valid entries
 	if (!Ini_IsValidSettings(lpName, lpValue)) return;
 
-	auto list = reinterpret_cast<std::vector<CConfigOption*>*>(lpParam);
-	for (size_t i = 0, si = list->size(); i < si; i++)
+	auto p = reinterpret_cast<cb_parse*>(lpParam);
+	for (size_t i = 0, si = p->list.size(); i < si; i++)
 	{
-		if ((*list)[i]->name.compare(lpName) == 0)
+		if (p->list[i]->name.compare(lpName) == 0)
 		{
-			(*list)[i]->SetValueFromName(lpValue);
+			p->list[i]->SetValueFromName(lpValue);
 			return;
 		}
 	}
 
-#if _DEBUG
-	char mes[256];
-	sprintf_s(mes, 256, "Orphaned setting: %s %s\n", lpName, lpValue);
-	OutputDebugStringA(mes);
-#endif;
+	p->error += "\"";
+	p->error += lpName;
+	p->error += "\" > \"";
+	p->error += lpValue;
+	p->error += "\"\n";
 }
 
-void CConfig::SetFromIni(LPCWSTR lpName)
+void CConfig::SetFromIni(LPCWSTR lpName, LPCWSTR error_caption)
 {
 	// attempt to load the ini
 	auto ini = Ini_Read(lpName);
 	if (ini == nullptr) return;
 
+	cb_parse p;
+
 	// build reference to all options for quicker callback parsing
-	std::vector<CConfigOption*> list;
 	for (size_t i = 0, si = section.size(); i < si; i++)
 		for (size_t j = 0, sj = section[i].option.size(); j < sj; j++)
-			list.push_back(&section[i].option[j]);
+			p.list.push_back(&section[i].option[j]);
 
 	// do the parsing (can be slightly slow)
-	Ini_Parse(ini, ParseCallback, (void*)&list);
+	Ini_Parse(ini, ParseCallback, (void*)&p);
 
 	// done, disengage!
 	free(ini);
+
+	// print orphaned
+	if(!p.error.empty())
+		MessageBoxW(nullptr, MultiToWide_s(std::string("Orphan sections:\n") + p.error).c_str(), error_caption, MB_OK);
 }
 
-void CConfig::SaveIni(LPCWSTR lpName)
+void CConfig::SaveIni(LPCWSTR lpName, LPCWSTR error_mes, LPCWSTR error_caption)
 {
 	FILE* fp = nullptr;
 	_wfopen_s(&fp, lpName, L"wt");

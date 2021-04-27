@@ -26,6 +26,8 @@ CCtrlButton hBnClose, hBnDefault, hBnSave, hBnLaunch;	// buttons at the bottom
 CCtrlDescription hDesc;									// option description
 std::vector<std::shared_ptr<CCombined>> hCtrl;			// responsive controls for options
 std::vector<std::shared_ptr<CCtrlGroup>> hGroup;		// group controls inside the tab
+UINT uCurTab;
+bool bHasChange;
 
 // the xml
 CConfig cfg;
@@ -33,14 +35,19 @@ CConfig cfg;
 enum ProgramStrings
 {
 	STR_TITLE,
+	STR_ERROR,
+	STR_WARNING,
 	STR_BN_CLOSE,
 	STR_BN_DEFAULT,
 	STR_BN_SAVE,
 	STR_BN_LAUNCH,
-	STR_LAUNCH_DESC,
-	STR_LAUNCH_TITLE,
+	STR_LAUNCH_ERROR,
 	STR_LAUNCH_EXE,
-	STR_INI_NAME
+	STR_INI_NAME,
+	STR_INI_ERROR,
+	STR_UNSAVED,
+	STR_UNSAVED_TEXT,
+	STR_UNSAVED_TITLE
 };
 
 struct Strings
@@ -55,14 +62,18 @@ std::wstring GetPrgString(UINT id)
 	static Strings str[] =
 	{
 		"PRG_Title", L"Silent Hill 2: Enhanced Edition Configuration Tool",
+		"PRG_Caption_error", L"ERROR",
+		"PRG_Caption_warning", L"WARNING",
 		"PRG_Close", L"Close",
 		"PRG_Default", L"Defaults",
 		"PRG_Save", L"Save",
 		"PRG_Launch", L"Save & Launch Game",
-		"PRG_Launch_desc", L"Could not launch sh2pc.exe",
-		"PRG_Launch_title", L"ERROR",
+		"PRG_Launch_mess", L"Could not launch sh2pc.exe",
 		"PRG_Launch_exe", L"sh2pc.exe",
-		"PRG_Ini_name", L"d3d8.ini"
+		"PRG_Ini_name", L"d3d8.ini",
+		"PRG_Ini_error", L"Could not save the configuration ini.",
+		"PRG_Unsaved", L" [unsaved changes]",
+		"PRG_Save_exit", L"There are unsaved changes. Save before closing?",
 	};
 
 	auto s = cfg.GetString(str[id].name);
@@ -73,15 +84,37 @@ std::wstring GetPrgString(UINT id)
 	return std::wstring(str[id].def);
 }
 
+void SetChanges()
+{
+	if (bHasChange == false)
+	{
+		::hWnd.SetText((GetPrgString(STR_TITLE) + GetPrgString(STR_UNSAVED)).c_str());
+		bHasChange = true;
+	}
+}
+
+void RestoreChanges()
+{
+	if (bHasChange)
+	{
+		::hWnd.SetText(GetPrgString(STR_TITLE).c_str());
+		bHasChange = false;
+	}
+}
+
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
-	cfg.ParseXml();
-	cfg.SetFromIni(GetPrgString(STR_INI_NAME).c_str());
+	if (cfg.ParseXml())
+	{
+		MessageBoxA(nullptr, "Could not load config.xml.", "INITIALIZATION ERROR", MB_ICONERROR);
+		return 0;
+	}
+	cfg.SetFromIni(GetPrgString(STR_INI_NAME).c_str(), GetPrgString(STR_WARNING).c_str());
 	// Initialize global strings
 	InitCommonControls();
 	MyRegisterClass(hInstance);
 
-	LOGFONT lf;
+	LOGFONT lf = { 0 };
 	GetObjectA(GetStockObject(DEFAULT_GUI_FONT), sizeof(LOGFONT), &lf);
 	hFont = CreateFont(lf.lfHeight, lf.lfWidth,
 		lf.lfEscapement, lf.lfOrientation, lf.lfWeight,
@@ -100,7 +133,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 		return FALSE;
 	}
 
-	MSG msg;
+	MSG msg = { 0 };
 
 	// Main message loop:
 	while (bIsLooping)
@@ -114,9 +147,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
 	if (bLaunch)
 		if (ShellExecuteW(nullptr, nullptr, GetPrgString(STR_LAUNCH_EXE).c_str(), nullptr, nullptr, SW_SHOWNORMAL) <= (HINSTANCE)32)
-			MessageBoxW(nullptr, GetPrgString(STR_LAUNCH_DESC).c_str(), GetPrgString(STR_LAUNCH_TITLE).c_str(), MB_ICONERROR);
+			MessageBoxW(nullptr, GetPrgString(STR_LAUNCH_ERROR).c_str(), GetPrgString(STR_ERROR).c_str(), MB_ICONERROR);
 
-	return (int) msg.wParam;
+	return (int)msg.wParam;
 }
 
 ATOM MyRegisterClass(HINSTANCE hInstance)
@@ -190,6 +223,7 @@ std::shared_ptr<CCombined> MakeControl(CWnd &hParent, int section, int option, i
 
 void PopulateTab(int section)
 {
+	uCurTab = section;
 	hDesc.SetCaption(cfg.GetGroupString(section).c_str());
 	hDesc.SetText(L"");
 
@@ -286,10 +320,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	hBnLaunch.CreateWindow(GetPrgString(STR_BN_LAUNCH).c_str(), X, Y, 140, 26, hWnd, hInstance, hFont);
 
 	// assign custom IDs to all buttons for easier catching
-	SetWindowLongPtrW(hBnClose,   GWLP_ID, WM_USER);
-	SetWindowLongPtrW(hBnDefault, GWLP_ID, WM_USER + 1);
-	SetWindowLongPtrW(hBnSave,    GWLP_ID, WM_USER + 2);
-	SetWindowLongPtrW(hBnLaunch,  GWLP_ID, WM_USER + 3);
+	hBnClose.SetID  (WM_USER);
+	hBnDefault.SetID(WM_USER + 1);
+	hBnSave.SetID   (WM_USER + 2);
+	hBnLaunch.SetID (WM_USER + 3);
 
 	// if sh2pc.exe doesn't exist, don't enable the launch button
 	FILE* fp = nullptr;
@@ -311,8 +345,6 @@ LRESULT CALLBACK TabProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (Msg)
 	{
-	case WM_MOUSEMOVE:
-		break;
 	case WM_COMMAND:
 		switch (HIWORD(wParam))
 		{
@@ -321,6 +353,7 @@ LRESULT CALLBACK TabProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 				CCombined* wnd = reinterpret_cast<CCombined*>(GetWindowLongPtrW((HWND)lParam, GWLP_USERDATA));
 				int sel = wnd->GetSelection();
 				wnd->SetConfigValue(sel);
+				SetChanges();
 			}
 			break;
 		case BN_CLICKED:	// catch checkboxes
@@ -328,6 +361,7 @@ LRESULT CALLBACK TabProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 				CCombined* wnd = reinterpret_cast<CCombined*>(GetWindowLongPtrW((HWND)lParam, GWLP_USERDATA));
 				bool checked = wnd->GetCheck();
 				wnd->SetConfigValue(checked);
+				SetChanges();
 			}
 			break;
 		}
@@ -341,17 +375,14 @@ LRESULT CALLBACK WndProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
-	//case WM_CREATE:
-	//	{
-	//		CREATESTRUCT* pCS = (CREATESTRUCT*)lParam;
-	//		CWnd* h = (CWnd*)pCS->lpCreateParams;
-	//		h->SetWnd(wnd);
-	//	}
-	//	return 0;
 	case WM_DESTROY:
 		bIsLooping = false;
 		PostQuitMessage(0);
 		break;
+	//case WM_MOUSEMOVE:
+	//	hDesc.SetCaption(cfg.GetGroupString(uCurTab).c_str());
+	//	hDesc.SetText(L"");
+	//	break;
 	case WM_NOTIFY:
 		switch (((LPNMHDR)lParam)->code)
 		{
@@ -367,18 +398,36 @@ LRESULT CALLBACK WndProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
 			switch (LOWORD(wParam))
 			{
 			case WM_USER + 0:	// close
-				SendMessageW(hWnd, WM_DESTROY, 0, 0);
+				if (bHasChange)
+				{
+					// unsaved settings, ask user what to do
+					switch (MessageBoxW(hWnd, GetPrgString(STR_UNSAVED_TEXT).c_str(), GetPrgString(STR_UNSAVED_TITLE).c_str(), MB_YESNOCANCEL))
+					{
+					case IDYES:		// save and close
+						cfg.SaveIni(GetPrgString(STR_INI_NAME).c_str(), GetPrgString(STR_INI_ERROR).c_str(), GetPrgString(STR_ERROR).c_str());
+						SendMessageW(hWnd, WM_DESTROY, 0, 0);
+						break;
+					case IDNO:		// ignore and close
+						SendMessageW(hWnd, WM_DESTROY, 0, 0);
+						break;
+					case IDCANCEL:	// don't close
+						break;
+					}
+				}
+				else SendMessageW(hWnd, WM_DESTROY, 0, 0);
 				break;
 			case WM_USER + 1:	// defaults
+				SetChanges();
 				cfg.SetDefault();
 				UpdateTab(hTab.GetCurSel());
 				break;
 			case WM_USER + 2:	// save
-				cfg.SaveIni(GetPrgString(STR_INI_NAME).c_str());
+				RestoreChanges();
+				cfg.SaveIni(GetPrgString(STR_INI_NAME).c_str(), GetPrgString(STR_INI_ERROR).c_str(), GetPrgString(STR_ERROR).c_str());
 				break;
 			case WM_USER + 3:	// save & launch
 				bLaunch = true;
-				cfg.SaveIni(GetPrgString(STR_INI_NAME).c_str());
+				cfg.SaveIni(GetPrgString(STR_INI_NAME).c_str(), GetPrgString(STR_INI_ERROR).c_str(), GetPrgString(STR_ERROR).c_str());
 				SendMessageW(hWnd, WM_DESTROY, 0, 0);
 				break;
 			}

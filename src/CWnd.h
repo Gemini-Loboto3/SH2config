@@ -32,10 +32,10 @@ public:
 	}
 
 	void SetWnd(HWND wnd) { hWnd = wnd; }
-	void SetText(LPCWSTR lpString) { SetWindowTextW(*this, lpString); }
+	void SetText(LPCWSTR lpString) { SetWindowTextW(hWnd, lpString); }
 	WNDPROC Subclass(WNDPROC new_proc)
 	{
-		WNDPROC ret = (WNDPROC)SetWindowLongPtrW(*this, GWLP_WNDPROC, (LONG_PTR)new_proc);
+		WNDPROC ret = (WNDPROC)SetWindowLongPtrW(hWnd, GWLP_WNDPROC, (LONG_PTR)new_proc);
 		// preserve only the original procedure
 		if (old_proc == nullptr)
 			old_proc = ret;
@@ -45,6 +45,10 @@ public:
 	LRESULT CallProcedure(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		return CallWindowProcW(old_proc, wnd, msg, wParam, lParam);
+	}
+	void SetID(UINT uId)
+	{
+		SetWindowLongPtrW(hWnd, GWLP_ID, uId);
 	}
 
 	enum Type

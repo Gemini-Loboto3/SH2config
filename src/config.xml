@@ -130,6 +130,10 @@
 				<Value tip="Disable">0</Value>
 				<Value tip="Enable" default="1">1</Value>
 			</Option>
+			<Option name="UsePS2LowResTextures" type="check" id="OPT_UsePS2LowResTextures" desc="DESC_UsePS2LowResTextures">
+				<Value tip="Disable" default="1">0</Value>
+				<Value tip="Enable">1</Value>
+			</Option> 
 		</Section>
 		
 		<Section name="Advanced - Texture Filtering" id="CAT_TextureFiltering">
@@ -186,7 +190,7 @@
 				<Value tip="DirectInput" id="OPT_RestoreSearchCamMovement_2">2</Value>
 				<Value tip="DirectInput (Alternate)" id="OPT_RestoreSearchCamMovement_3">3</Value>
 			</Option>
-			<Option name="SouthPaw" type="check" id="OPT_SouthPaw" desc="DESC_SouthPaw">
+			<Option name="Southpaw" type="check" id="OPT_Southpaw" desc="DESC_Southpaw">
 				<Value tip="Disable" default="1">0</Value>
 				<Value tip="Enable">1</Value>
 			</Option>
@@ -322,6 +326,14 @@
 				<Value tip="Disable">0</Value>
 				<Value tip="Enable" default="1">1</Value>
 			</Option>
+			<Option name="FixSaveBGImage" type="check" id="OPT_FixSaveBGImage" desc="DESC_FixSaveBGImage">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
+			<Option name="PS2StyleNoiseFilter" type="check" id="OPT_PS2StyleNoiseFilter" desc="DESC_PS2StyleNoiseFilter">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>
 			<Option name="FixMemoFading" type="check" id="OPT_FixMemoFading" desc="DESC_FixMemoFading">
 				<Value tip="Disable">0</Value>
 				<Value tip="Enable" default="1">1</Value>
@@ -421,15 +433,7 @@
 			<Option name="PauseScreenFix" type="check" id="OPT_PauseScreenFix" desc="DESC_PauseScreenFix">
 				<Value tip="Disable">0</Value>
 				<Value tip="Enable" default="1">1</Value>
-			</Option>  
-			<Option name="SetBlackPillarBoxes" type="check" id="OPT_SetBlackPillarBoxes" desc="DESC_SetBlackPillarBoxes">
-				<Value tip="Disable">0</Value>
-				<Value tip="Enable" default="1">1</Value>
-			</Option>  
-			<Option name="RestoreSpecialFX" type="check" id="OPT_RestoreSpecialFX" desc="DESC_RestoreSpecialFX">
-				<Value tip="Disable">0</Value>
-				<Value tip="Enable" default="1">1</Value>
-			</Option>  
+			</Option>   
 		</Section>
 		
 		<!-- END: GAME FIXES 2 Tab Content -->
@@ -437,6 +441,14 @@
 		<!-- BEGIN: GAME FIXES 3 Tab Content -->
 		
 		<Section name="Game Fixes 3 - General" id="CAT_General">
+			<Option name="SetBlackPillarBoxes" type="check" id="OPT_SetBlackPillarBoxes" desc="DESC_SetBlackPillarBoxes">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option>  
+			<Option name="RestoreSpecialFX" type="check" id="OPT_RestoreSpecialFX" desc="DESC_RestoreSpecialFX">
+				<Value tip="Disable">0</Value>
+				<Value tip="Enable" default="1">1</Value>
+			</Option> 
 			<Option name="SpecularFix" type="check" id="OPT_SpecularFix" desc="DESC_SpecularFix">
 				<Value tip="Disable">0</Value>
 				<Value tip="Enable" default="1">1</Value>
@@ -462,10 +474,6 @@
 				<Value tip="Enable" default="1">1</Value>
 			</Option> 
 			<Option name="FixDrawingTextLine" type="check" id="OPT_FixDrawingTextLine" desc="DESC_FixDrawingTextLine">
-				<Value tip="Disable">0</Value>
-				<Value tip="Enable" default="1">1</Value>
-			</Option> 
-			<Option name="UsePS2LowResTextures" type="check" id="OPT_UsePS2LowResTextures" desc="DESC_UsePS2LowResTextures">
 				<Value tip="Disable">0</Value>
 				<Value tip="Enable" default="1">1</Value>
 			</Option> 
@@ -504,14 +512,15 @@
         
 		<!-- BEGIN: HIDDEN Content -->
         
-        <Section name="Framerate - Warning: Issues when played at a high framerate">
+        <Section name="Framerate - There are issues playing at a high framerate">
 			<Option name="FPSLimit" type="invisible">
-                <Value default="1">30</Value>
-                <Value>60</Value>
+                <Value tip="Disabled" default="1">0</Value>
+                <Value tip="30 FPS">30</Value>
+                <Value tip="60 FPS">60</Value>
 			</Option>
         </Section>
 		
-		<Section name="Manual Resolution - Requires DynamicResolution = 0">
+		<Section name="Manual Resolution - Requires disabling DynamicResolution">
 			<Option name="ResX" type="invisible">
 				<Value default="1">0</Value>
 			</Option> 
@@ -520,14 +529,14 @@
 			</Option>
         </Section>
         
-        <Section name="Resolution Options - Requires DynamicResolution = 0">
+        <Section name="Resolution Options - Requires disabling DynamicResolution">
 			<Option name="LockResolution" type="invisible">
 				<Value tip="Disable">0</Value>
                 <Value tip="Enable" default="1">1</Value>
 			</Option>
         </Section>
         
-        <Section name="Fog Parameters - Requires FogFix = 1">
+        <Section name="Fog Parameters - Requires enabling FogFix">
 			<Option name="fog_transparency_layer1" type="invisible">
                 <Value default="1">128</Value>
 			</Option>
@@ -557,7 +566,7 @@
 			</Option>
         </Section>
         
-        <Section name="Font Parameters - Requires UseCustomFonts = 1">
+        <Section name="Font Parameters - Requires enabling UseCustomFonts">
 			<Option name="CustomFontCol" type="invisible">
                 <Value default="1">100</Value>
 			</Option>
@@ -619,7 +628,7 @@
 				<Opt sec="Display/Visuals - Other" op="UseBestGraphics"/>
 			</Sub>
 		</Group>
-		<Group id="DirectX">
+		<Group id="TAB_DirectX">
 			<Sub id="DirectX">
 				<Opt sec="DirectX/Shaders - DirectX" op="d3d8to9"/>
 			</Sub>
@@ -629,7 +638,7 @@
 				<Opt sec="DirectX/Shaders - Shaders" op="EnableSMAA"/>
 			</Sub>
 		</Group>
-		<Group id="Advanced">
+		<Group id="TAB_Advanced">
 			<Sub id="Resolution">
 				<Opt sec="Advanced - Resolution" op="DynamicResolution"/>
 				<Opt sec="Advanced - Resolution" op="WidescreenFix"/>
@@ -640,6 +649,7 @@
 				<Opt sec="Advanced - General" op="DisableScreenSaver"/>
 				<Opt sec="Advanced - General" op="UseCustomModFolder"/>
 				<Opt sec="Advanced - General" op="NoCDPatch"/>
+				<Opt sec="Advanced - General" op="UsePS2LowResTextures"/>
 			</Sub>
 			<Sub id="Texture Filtering">
 				<Opt sec="Advanced - Texture Filtering" op="AnisotropicFiltering"/>
@@ -655,7 +665,7 @@
 				<Opt sec="Controller - General" op="DPadMovementFix"/>
 				<Opt sec="Controller - General" op="GamepadControlsFix"/>
 				<Opt sec="Controller - General" op="RestoreSearchCamMovement"/>
-				<Opt sec="Controller - General" op="SouthPaw"/>
+				<Opt sec="Controller - General" op="Southpaw"/>
 			</Sub>
 			<Sub id="Vibration">
 				<Opt sec="Controller - Vibration" op="RestoreVibration"/>
@@ -699,6 +709,8 @@
 				<Opt sec="Game Fixes 2 - General" op="CatacombsMeatRoomFix"/>
 				<Opt sec="Game Fixes 2 - General" op="FixChainsawSpawn"/>
 				<Opt sec="Game Fixes 2 - General" op="CreateLocalFix"/>
+                <Opt sec="Game Fixes 2 - General" op="FixSaveBGImage"/>
+                <Opt sec="Game Fixes 2 - General" op="PS2StyleNoiseFilter"/>
 				<Opt sec="Game Fixes 2 - General" op="FixMemoFading"/>
 				<Opt sec="Game Fixes 2 - General" op="DisableSafeMode"/>
 				<Opt sec="Game Fixes 2 - General" op="DisableHighDPIScaling"/>
@@ -724,12 +736,12 @@
 				<Opt sec="Game Fixes 2 - General" op="LightingFix"/>
 				<Opt sec="Game Fixes 2 - General" op="LightingTransitionFix"/>
 				<Opt sec="Game Fixes 2 - General" op="PauseScreenFix"/>
-				<Opt sec="Game Fixes 2 - General" op="SetBlackPillarBoxes"/>
-				<Opt sec="Game Fixes 2 - General" op="RestoreSpecialFX"/>
 			</Sub>            
 		</Group>
 		<Group id="TAB_GameFixes_3">
 			<Sub id="General">
+				<Opt sec="Game Fixes 3 - General" op="SetBlackPillarBoxes"/>
+				<Opt sec="Game Fixes 3 - General" op="RestoreSpecialFX"/>
 				<Opt sec="Game Fixes 3 - General" op="SpecularFix"/>
 				<Opt sec="Game Fixes 3 - General" op="HalogenLightFix"/>
 				<Opt sec="Game Fixes 3 - General" op="HotelWaterFix"/>
@@ -737,7 +749,6 @@
 				<Opt sec="Game Fixes 3 - General" op="RowboatAnimationFix"/>
 				<Opt sec="Game Fixes 3 - General" op="SteamCrashFix"/>
 				<Opt sec="Game Fixes 3 - General" op="FixDrawingTextLine"/>
-				<Opt sec="Game Fixes 3 - General" op="UsePS2LowResTextures"/>
 				<Opt sec="Game Fixes 3 - General" op="WhiteShaderFix"/>
 			</Sub>            
 		</Group>
@@ -756,15 +767,19 @@
 	<Strings>
 		<!-- Program strings -->
 		<S id="PRG_Title">Silent Hill 2: Enhanced Edition Configuration Tool</S>
+		<S id="PRG_Caption_error">ERROR</S>
+		<S id="PRG_Caption_warning">WARNING</S>
 		<S id="PRG_Close">Close</S>
 		<S id="PRG_Default">Defaults</S>
 		<S id="PRG_Save">Save</S>
 		<S id="PRG_Launch">Save &amp;&amp; Launch Game</S>
-		<S id="PRG_Launch_desc">Could not launch sh2pc.exe.</S>
-		<S id="PRG_Launch_title">LAUNCH ERROR</S>
+		<S id="PRG_Launch_mess">Could not launch sh2pc.exe.</S>
 		<S id="PRG_Launch_exe">sh2pc.exe</S>
 		<S id="PRG_Ini_name">d3d8.ini</S>
-		
+		<S id="PRG_Ini_error">Could not write d3d8.ini.</S>
+		<S id="PRG_Unsaved"> [unsaved changes]</S>
+		<S id="PRG_Save_exit">There are unsaved changes. Save before closing?</S>
+
 		<!-- TABS -->
 		<S id="TAB_Display">Display / Visuals</S>
 		<S id="TAB_DirectX">DirectX / Shaders</S>
@@ -824,11 +839,11 @@
 		<S id="DESC_DisableRedCrossInCutScenes">Hides the low health indicator during cutscenes, which would otherwise be distracting as the cutscenes play out.</S>
 		<S id="DESC_DisableRedCross">Disables the low health indicator completely.&#x0a;&#x0a;Note: Enabling this option is only recommended if you are using a controller with vibration enabled. Otherwise, you have no way of knowing when you're low on health unless you check the inventory screen.</S>
 		<S id="DESC_IncreaseNoiseEffectRes">Adjusts the grain size of the noise filter.</S>
-		<S id="DESC_FullscreenImages">Adds compatibility for the Image Enhancement Pack to have its visuals display correctly. Must be enabled if using the Image Enhancement Pack.&#x0a;&#x0a;Fit: Displays the images without any cropping.&#x0a;Fill: Scales images to fill the display area, removing any letterboxes or pillarboxes, up to a 16:9 aspect ratio.&#x0a;Auto: Automatically displays the images depending on aspect ratio.</S>
-		<S id="DESC_FullscreenVideos">Adds compatibility for the FMV Enhancement Pack to have its videos display correctly in various modes.&#x0a;&#x0a;Fit: Displays the FMVs without any cropping.&#x0a;Fill: Scales FMVs to fill the display area, removing any letterboxes or pillarboxes, up to a 16:9 aspect ratio.&#x0a;Auto: Automatically displays the FMVs depending on aspect ratio.</S>
-		<S id="DESC_DisableCutsceneBorders">Removes in-game cutscene letterboxing.&#x0a;&#x0a;Note: It is recommended to enable this if playing in a widescreen aspect ratio.</S>
-		<S id="DESC_ReduceCutsceneFOV">Cutscenes will be zoomed in to match their original 4:3 horizontal compositions when playing in widescreen. This will hide "frozen" character models that have been loaded in, right outside the 4:3 boundaries, ready and waiting to enter the scene.&#x0a;&#x0a;Note: This feature will zoom up to a 16:9 aspect ratio. It will not zoom past this aspect ratio as too much of the composition would be cropped otherwise.</S>
-		<S id="DESC_UseBestGraphics">Enables all advanced graphics settings from the game's options menu (complex fog, shadows, lens flare, etc) by default upon each game launch.</S>   
+		<S id="DESC_FullscreenImages">Adds compatibility for the Image Enhancement Pack to have its visuals display correctly. Must be enabled if using the Image Enhancement Pack. The scaling works for both the original and enhanced fullscreen images.&#x0a;&#x0a;Auto: Automatically displays the images depending on aspect ratio.&#x0a;Fit: Displays the images without any cropping.&#x0a;Fill: Scales images to fill the display area, removing any letterboxes or pillarboxes, up to a 16:9 aspect ratio.</S>
+		<S id="DESC_FullscreenVideos">Adds compatibility for the FMV Enhancement Pack to have its videos display correctly. The scaling works for both the original and enhanced FMVs.&#x0a;&#x0a;Auto: Automatically displays the FMVs depending on aspect ratio.&#x0a;Fit: Displays the FMVs without any cropping.&#x0a;Fill: Scales FMVs to fill the display area, removing any letterboxes or pillarboxes, up to a 16:9 aspect ratio.</S>
+		<S id="DESC_DisableCutsceneBorders">Removes in-game cutscene letterboxing.&#x0a;&#x0a;Note: It is recommended to enable this if playing in a widescreen aspect ratio and enabling cutscene FOV scaling. Otherwise, the letterboxing may go over character heads when played in widesceen.</S>
+		<S id="DESC_ReduceCutsceneFOV">In-engine cutscenes will be zoomed in to match their original 4:3 horizontal compositions when playing in widescreen. This will hide "frozen" character models that have been loaded in, right outside the 4:3 boundaries, ready and waiting to enter the scene.&#x0a;&#x0a;Note: This feature will zoom up to a 16:9 aspect ratio. It will not zoom past this aspect ratio as too much of the composition would be cropped otherwise. This means that ultra-wide aspect ratios will still see visual anomolies as in-engine cutscenes play out.</S>
+		<S id="DESC_UseBestGraphics">Enables all advanced graphics settings from the game's Options > Advanced Options menu (complex fog, shadows, lens flare, etc) by default upon each game launch.</S>   
 		
 		<!-- ################################## -->
         
@@ -866,6 +881,7 @@
 		<S id="OPT_UseCustomModFolder">Use custom "sh2e" folder</S>
 		<S id="OPT_NoCDPatch">No CD patch</S>
 		<S id="OPT_AnisotropicFiltering">Anisotropic Filtering</S>
+		<S id="OPT_UsePS2LowResTextures">Disable "sh2e\pic\" path</S>
 		<S id="OPT_DisableGameUX">Disable Windows GameUX.dll</S>
 		<S id="OPT_FixGPUAntiAliasing">Fix GPU anti-aliasing</S>
 		<S id="OPT_SingleCoreAffinityLegacy">Single core affinity</S>
@@ -891,14 +907,15 @@
 
 		<!-- ADVANCED: Descriptions -->
 		<S id="DESC_DynamicResolution">Detects every resolution your display offers and makes them selectable choices in the game's options menu, along with displaying their aspect ratios beside the resolution.</S>
-		<S id="DESC_WidescreenFix">Enables the SH2 Widescreen Fixes Pack and sh2proxy module.&#x0a;&#x0a;Note: If disabled, various other features/fixes will also be disabled.</S>
+		<S id="DESC_WidescreenFix">Enables the SH2 Widescreen Fixes Pack and sh2proxy module.&#x0a;&#x0a;Note: If disabled, various other features/fixes will also be disabled. This feature should never be disabled.</S>
 		<S id="DESC_ResX">Set the game to run at a specific, manual width.&#x0a;&#x0a;Note: The dynamic resolution feature must be disabled for a manual resolution to take effect.</S>
 		<S id="DESC_ResY">Set the game to run at a specific, manual height.&#x0a;&#x0a;Note: The dynamic resolution feature must be disabled for a manual resolution to take effect.</S>
 		<S id="DESC_CheckCompatibilityMode">Checks if unsupported Windows compatibility options are enabled for sh2pc.exe and disables them.</S>
 		<S id="DESC_CheckForAdminAccess">Removes unneeded Windows Virtual Store files for the game and checks if administrator access is required (and prompts for UAC, if needed) upon launch, in order to save game progress.</S>
 		<S id="DESC_DisableScreenSaver">Disables the screensaver in Windows while the game is running.</S>
-		<S id="DESC_UseCustomModFolder">Silent Hill 2: Enhanced Edition will read and use files in the "sh2e" folder, rather than the "data" folder, whenever possible. This allows custom, modified game files to be stored in the "sh2e" folder so as not to replace/overwrite original game files, which are found in the "data" folder. Any game files which we have not modified will still be read from the "data" folder like normal, so you must keep the "data" folder and leave it untouched.</S>
+		<S id="DESC_UseCustomModFolder">Silent Hill 2: Enhanced Edition will read and use files in the "sh2e" folder, rather than the "data" folder, whenever possible. This allows custom, modified game files to be stored in the "sh2e" folder so as not to replace/overwrite original game files, which are found in the "data" folder. Any game files which have not been modified will still be read from the "data" folder like normal, so you must keep the "data" folder and leave it untouched.</S>
 		<S id="DESC_NoCDPatch">Removes the CD check on some versions of the game. Not guaranteed to work on all executables.</S>
+		<S id="DESC_UsePS2LowResTextures">Disables the "sh2e\pic\" path. This will revert the game to use the original, low resolution full screen images while still using all other files/folders found within the "sh2e" path.&#x0a;&#x0a;Note: Enabling the use of the custom "sh2e" folder is still required to use all other files/folders found with the "sh2e" path.</S>
 		<S id="DESC_AnisotropicFiltering">Sets anisotropic filtering level.</S>
 		<S id="DESC_DisableGameUX">Disables Microsoft Game Explorer (GameUX.dll) to prevent the game hanging on launch and rundll32.exe high CPU usage.</S>
 		<S id="DESC_FixGPUAntiAliasing">Fixes issues for Nvidia graphics cards, such as missing/incorrect shadows, when force-enabling anti-aliasing through of your GPU's control panel.</S>
@@ -913,7 +930,7 @@
 		<S id="OPT_DPadMovementFix">Restore D-pad movement</S>
 		<S id="OPT_GamepadControlsFix">Assign multiple functions to the same input</S>
 		<S id="OPT_RestoreSearchCamMovement">Controller type for search cam movement</S>
-		<S id="OPT_SouthPaw">South Paw</S>
+		<S id="OPT_Southpaw">South Paw</S>
 		<S id="OPT_RestoreVibration">Restore Vibration</S>
 		<S id="OPT_PadNumber">Controller ID to vibrate</S>
 		
@@ -934,10 +951,10 @@
 		<S id="OPT_PadNumber_9">9</S>
 		
 		<!-- CONTROLLER: Descriptions -->
-		<S id="DESC_DPadMovementFix">Allows the D-pad on DirecInput gamepads to act as an additional movement pad to control James and to be used to navigate menu selections.</S>
+		<S id="DESC_DPadMovementFix">Allows the D-pad on DirecInput gamepads to act as an additional movement pad to control James and navigate menu selections.&#x0a;&#x0a;If disabled, you can instead use the D-pad to assign additional functions to the four directions on the D-pad. (Example: You can assign left and right on the D-pad to cycle through weapons.) You can assign functions to controller inputs through the game's Options > Control Options menu.</S>
 		<S id="DESC_GamepadControlsFix">Allows the same controller input to be assigned to multiple game functions.</S>
 		<S id="DESC_RestoreSearchCamMovement">Restores right joystick functionality for controllers to move the search camera around. Change the setting depending on what type of controller you are using.</S>
-		<S id="DESC_SouthPaw">Swaps left joystick/D-pad and right joystick functions. Useful for left-handed players.</S>
+		<S id="DESC_Southpaw">Swaps left joystick/D-pad and right joystick functions. Useful for left-handed players.</S>
 		<S id="DESC_RestoreVibration">Restores vibration for XInput-based controllers.</S>
 		<S id="DESC_PadNumber">Sets what pad (controller) ID to vibrate.</S>
 		
@@ -996,7 +1013,7 @@
 		<S id="DESC_UseCustomFonts">Uses custom font files to produce high-resolution text in-game. Compatible with all preset language files (English, French, German, Italian, and Spanish) in the game.&#x0a;&#x0a;Note: fontwdata.bin and font000.tga files must be present in "sh2e\font\" for this feature to work.</S>
 		<S id="DESC_DisableEnlargedText">Disables the enlarged, floating text while navigating the save/load menu. Requires high resolution text to be enabled to work.</S>
 		<S id="DESC_MainMenuFix">Fixes the mouse hitboxes for the game's main menu selections for the North American version 1.1 executable.</S>
-		<S id="DESC_MainMenuTitlePerLang">Loads translated main menu text selections for the North American version 1.0 and 1.1 executables.&#x0a;&#x0a;Note: "start01*.tex" files must be present in "sh2e\pic\etc\"" for this feature to work.</S>
+		<S id="DESC_MainMenuTitlePerLang">Loads translated main menu text selections for the North American version 1.0 and 1.1 executables.&#x0a;&#x0a;Note: start01*.tex files must be present in "sh2e\pic\etc\" for this feature to work.</S>
 		<S id="DESC_LockScreenPosition">Disables the screen position feature in the game's options menu, which is no longer needed for modern displays, and could otherwise cause visual alignment issues.</S>
 		<S id="DESC_LockSpeakerConfig">Disables changing the speaker configuration feature in the game's options menu, as after Windows XP this change must be done through Windows' sound control panel and can no longer be changed within applications (such as this game).&#x0a;&#x0a;Note: d3d8.res must be present in the game's directory for this feature to work.</S>
 		<S id="DESC_UseCustomExeStr">Restores all language options (English, French, German, Italian, and Spanish) as selectable choices and creates language-specific pause menu text for the North American executables of the game.&#x0a;&#x0a;Note: d3d8.res must be present in the game's directory for this feature to work.</S>
@@ -1014,6 +1031,8 @@
 		<S id="OPT_CatacombsMeatRoomFix">Catacomb meat room fix</S>
 		<S id="OPT_FixChainsawSpawn">Chainsaw only spawns on New Game+</S>
 		<S id="OPT_CreateLocalFix">Create "local.fix" file on game launch</S>
+        <S id="OPT_FixSaveBGImage">Consistent save background images</S>
+        <S id="OPT_PS2StyleNoiseFilter">Correct noise filter levels</S>
 		<S id="OPT_FixMemoFading">Correctly fade images from memo list</S>
 		<S id="OPT_DisableSafeMode">Disable safe mode</S>
 		<S id="OPT_DisableHighDPIScaling">Disable Windows high DPI scaling</S>
@@ -1039,13 +1058,13 @@
 		<S id="OPT_LightingFix">Lighting fix</S>
 		<S id="OPT_LightingTransitionFix">Lighting transition fix</S>
 		<S id="OPT_PauseScreenFix">Pause screen fix</S>
-		<S id="OPT_SetBlackPillarBoxes">Restore black pillarboxes</S>
-		<S id="OPT_RestoreSpecialFX">Restore post-processing effects</S>
 		
 		<!-- GAME FIXES 2: Descriptions -->
 		<S id="DESC_CatacombsMeatRoomFix">Corrects color and level values for the Catacomb's meat cold rooms.</S>
 		<S id="DESC_FixChainsawSpawn">Prevents the chainsaw from spawning on a first playthrough, which is a developer-intended design choice.</S>
 		<S id="DESC_CreateLocalFix">Creates a local.fix file in the game's directory (if it does not already exist) to allow GPU-based anti-aliasing support for the game.</S>
+		<S id="DESC_FixSaveBGImage">Ensures the correct background image for the save/load screen is always shown for the campaign currently being played.</S>
+        <S id="DESC_PS2StyleNoiseFilter">Restores the levels and opacity of noise filter back to its original look.</S>
 		<S id="DESC_FixMemoFading">Fixes an issue where the top-most layer of memo images would not correctly fade/darken with the rest of the image when viewed through your memos list.</S>
 		<S id="DESC_DisableSafeMode">Prevents the game from using the lowest visual settings upon relaunch, if the game crashed previously.</S>
 		<S id="DESC_DisableHighDPIScaling">Disables Windows' high DPI scaling for the game to prevent certain display issues, such as a "burnt-in" image from appearing during fade transitions.</S>
@@ -1060,7 +1079,7 @@
 		<S id="DESC_FlashlightFlickerFix">Fixes a bug that would make James' body flash with light if exiting the pause menu while the flashlight is off.</S>
 		<S id="DESC_HospitalChaseFix">Correctly syncs Red Pyramid Thing's attack animation to the rest of the cutscene that plays out during the hospital elevator chase sequence.</S>
 		<S id="DESC_FixCreatureVehicleSpawn">Fixes an issue where Lying Figures would exit from underneath vehicles incorrectly.</S>
-		<S id="DESC_FixMissingWallChunks">Fixes an issue on Nvidia graphics cards where chunks of the wall would disappear if the camera got to close to the geometry when using a widescreen aspect ratio.</S>
+		<S id="DESC_FixMissingWallChunks">Fixes an issue on Nvidia graphics cards where chunks of the wall would disappear if the camera got close to their geometry.&#x0a;&#x0a;Note: If playing in an ultra-wide aspect ratio, the camera will likely clip through walls. This is a different issue and is unavoidable due to heavy use of tight camera angles throughout this game.</S>
 		<S id="DESC_PistonRoomFix">Hides a piston behind the wall that would otherwise be seen when Angela opens the door in the Labyrinth during a cutscene.</S>
 		<S id="DESC_RemoveEffectsFlicker">Removes flicker that appears at the beginning of any motion blur event.</S>
 		<S id="DESC_GameLoadFix">Disables free-saving in select rooms that would cause game issues upon file loading back into the rooms. Addresses quick save bugs that could otherwise soft lock the game.</S>
@@ -1071,23 +1090,24 @@
 		<S id="DESC_LightingFix">Restores proper environmental settings for the "Maria" ending, and restores lighting conditions for the 3D trees in the "Leave" and "Maria" ending.</S>
 		<S id="DESC_LightingTransitionFix">Fixes an issue where some light sources would not properly brighten and darken James.</S>
 		<S id="DESC_PauseScreenFix">Removes flicker when accessing the pause menu and restores the noise filter and bloom effects in the pause menu for Room 312 of the Hotel.</S>
-		<S id="DESC_SetBlackPillarBoxes">Forces all dynamically made pillarboxing to be black in color, restores pillarboxing to events which did not have them, and hides map markings behind the pillarboxing.</S>
-		<S id="DESC_RestoreSpecialFX">Restores post-processing effects to their original intensities. Effects include depth-of-field blur, motion blur, static blur, and pseudo blooms.</S>
 		
 		<!-- ################################## -->
 		
 		<!-- GAME FIXES 3: Options -->
-		<S id="OPT_SpecularFix">Restore specularity</S>
+		<S id="OPT_SetBlackPillarBoxes">Restore black pillarboxes</S>
+		<S id="OPT_RestoreSpecialFX">Restore post-processing effects</S>
+        <S id="OPT_SpecularFix">Restore specularity</S>
 		<S id="OPT_HalogenLightFix">Restore unlit vertex shader</S>
 		<S id="OPT_HotelWaterFix">Restore water visuals</S>
 		<S id="OPT_RoomLightingFix">Room lighting fix</S>
 		<S id="OPT_RowboatAnimationFix">Rowboat animation fix</S>
 		<S id="OPT_SteamCrashFix">Steam crash fix</S>
 		<S id="OPT_FixDrawingTextLine">Thicken hospital diary line</S>
-		<S id="OPT_UsePS2LowResTextures">Use PS2 low res main menu screen</S>
 		<S id="OPT_WhiteShaderFix">White shader fix</S>
 		
 		<!-- GAME FIXES 3: Descriptions -->
+		<S id="DESC_SetBlackPillarBoxes">Forces all dynamically made pillarboxing to be black in color, restores pillarboxing to events which did not have them, and hides map markings behind the pillarboxing.</S>
+		<S id="DESC_RestoreSpecialFX">Restores post-processing effects to their original intensities. Effects include depth-of-field blur, motion blur, static blur, and pseudo blooms.</S>
 		<S id="DESC_SpecularFix">Restores specularity and specular behavior throughout the game. This gives "shininess" to things such as character eyeballs, Pyramid Head's helmet, Maria's skirt, etc. And shiny things will shine brighter whenever they're under a light source or when James' flashlight is on.</S>
 		<S id="DESC_HalogenLightFix">Restores illuminance for certain environment assets.</S>
 		<S id="DESC_HotelWaterFix">Restores lighting values for the water throughout the game.</S>
@@ -1095,7 +1115,6 @@
 		<S id="DESC_RowboatAnimationFix">Fixes an issue with James' character model being placed erratically into the rowboat if you previously entered the rowboat then load an earlier save point to enter the rowboat again.</S>
 		<S id="DESC_SteamCrashFix">Prevents a crash when Steam controller configuration is used or when going to the game's options menu while using certain types of gamepads.</S>
 		<S id="DESC_FixDrawingTextLine">Thickens the horizontal line in the hospital diary text to make it easier to see at higher rendering resolutions.</S>
-		<S id="DESC_UsePS2LowResTextures">Disables the "sh2e\pic\ path and redirects to "sh2e\ps2\" to use the original, low resolution full screen images. This will disable all images found within the "sh2e\pic\" path.</S>
 		<S id="DESC_WhiteShaderFix">Fixes an issue on Nvidia graphics cards where certain areas would appear white when they should be black.</S>
 		
 	</Strings>

@@ -8,16 +8,12 @@
 #include <memory>
 #include <shellapi.h>
 
-#define MAX_LOADSTRING 100
+#define SH2CLASS	L"ConfigToolClass"
 
 HINSTANCE hInst;
 HFONT hFont, hBold;
-bool bIsLooping = true, bLaunch = false;
-
-ATOM				MyRegisterClass(HINSTANCE hInstance);
-BOOL				InitInstance(HINSTANCE, int);
-LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
-LRESULT CALLBACK	TabProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
+bool bIsLooping = true,
+	bLaunch = false;
 
 // all controls used by the program
 CWnd hWnd;												// program window
@@ -31,6 +27,11 @@ bool bHasChange;
 
 // the xml
 CConfig cfg;
+
+ATOM				MyRegisterClass(HINSTANCE hInstance);
+BOOL				InitInstance(HINSTANCE, int);
+LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK	TabProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
 enum ProgramStrings
 {
@@ -47,7 +48,6 @@ enum ProgramStrings
 	STR_INI_ERROR,
 	STR_UNSAVED,
 	STR_UNSAVED_TEXT,
-	STR_UNSAVED_TITLE
 };
 
 struct Strings
@@ -146,7 +146,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	}
 
 	if (bLaunch)
-		if (ShellExecuteW(nullptr, nullptr, GetPrgString(STR_LAUNCH_EXE).c_str(), nullptr, nullptr, SW_SHOWNORMAL) <= (HINSTANCE)32)
+		if (ShellExecuteW(nullptr, nullptr, GetPrgString(STR_LAUNCH_EXE).c_str(), nullptr, nullptr, SW_RESTORE) <= (HINSTANCE)32)
 			MessageBoxW(nullptr, GetPrgString(STR_LAUNCH_ERROR).c_str(), GetPrgString(STR_ERROR).c_str(), MB_ICONERROR);
 
 	return (int)msg.wParam;
@@ -162,7 +162,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.hInstance		= hInstance;
 	wcex.hCursor		= LoadCursorW(nullptr, (LPCWSTR)IDC_ARROW);
 	wcex.hbrBackground	= (HBRUSH)(COLOR_WINDOW);
-	wcex.lpszClassName	= L"SH2CONFIG";
+	wcex.lpszClassName	= SH2CLASS;
 	wcex.hIcon			= LoadIconW(wcex.hInstance, MAKEINTRESOURCEW(IDI_CONFIG));
 
 	return RegisterClassExW(&wcex);
@@ -293,7 +293,7 @@ void UpdateTab(int section)
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	hInst = hInstance; // Store instance handle in our global variable
-	hWnd.CreateWindow(L"SH2CONFIG", GetPrgString(STR_TITLE).c_str(), WS_OVERLAPPEDWINDOW & ~(WS_MAXIMIZEBOX | WS_THICKFRAME),
+	hWnd.CreateWindow(SH2CLASS, GetPrgString(STR_TITLE).c_str(), WS_OVERLAPPEDWINDOW & ~(WS_MAXIMIZEBOX | WS_THICKFRAME),
 		CW_USEDEFAULT, CW_USEDEFAULT, 800, 620, nullptr, hInstance);
 	if (!hWnd)
 		return FALSE;
@@ -327,7 +327,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	// if sh2pc.exe doesn't exist, don't enable the launch button
 	FILE* fp = nullptr;
-	fopen_s(&fp, "sh2pc.exe", "rb");
+	_wfopen_s(&fp, GetPrgString(STR_LAUNCH_EXE).c_str(), L"rb");
 	if (!fp) EnableWindow(hBnLaunch, false);
 	else fclose(fp);
 
@@ -401,7 +401,7 @@ LRESULT CALLBACK WndProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
 				if (bHasChange)
 				{
 					// unsaved settings, ask user what to do
-					switch (MessageBoxW(hWnd, GetPrgString(STR_UNSAVED_TEXT).c_str(), GetPrgString(STR_UNSAVED_TITLE).c_str(), MB_YESNOCANCEL))
+					switch (MessageBoxW(hWnd, GetPrgString(STR_UNSAVED_TEXT).c_str(), GetPrgString(STR_WARNING).c_str(), MB_YESNOCANCEL))
 					{
 					case IDYES:		// save and close
 						cfg.SaveIni(GetPrgString(STR_INI_NAME).c_str(), GetPrgString(STR_INI_ERROR).c_str(), GetPrgString(STR_ERROR).c_str());

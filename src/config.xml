@@ -767,18 +767,18 @@
 	<Strings>
 		<!-- Program strings -->
 		<S id="PRG_Title">Silent Hill 2: Enhanced Edition Configuration Tool</S>
-		<S id="PRG_Caption_error">ERROR</S>
-		<S id="PRG_Caption_warning">WARNING</S>
-		<S id="PRG_Close">Close</S>
-		<S id="PRG_Default">Defaults</S>
-		<S id="PRG_Save">Save</S>
-		<S id="PRG_Launch">Save &amp;&amp; Launch Game</S>
-		<S id="PRG_Launch_mess">Could not launch sh2pc.exe.</S>
+		<S id="PRG_Caption_error">ERRORE</S>
+		<S id="PRG_Caption_warning">AVVISO</S>
+		<S id="PRG_Close">Chiudi</S>
+		<S id="PRG_Default">Predefinito</S>
+		<S id="PRG_Save">Salva</S>
+		<S id="PRG_Launch">Salve e lancia il gioco</S>
+		<S id="PRG_Launch_mess">Non è stato possibile lanciare sh2pc.exe.</S>
 		<S id="PRG_Launch_exe">sh2pc.exe</S>
 		<S id="PRG_Ini_name">d3d8.ini</S>
-		<S id="PRG_Ini_error">Could not write d3d8.ini.</S>
-		<S id="PRG_Unsaved"> [unsaved changes]</S>
-		<S id="PRG_Save_exit">There are unsaved changes. Save before closing?</S>
+		<S id="PRG_Ini_error">Non è stato possibile salvare d3d8.ini.</S>
+		<S id="PRG_Unsaved"> [non salvato]</S>
+		<S id="PRG_Save_exit">Sono presenti modifiche non salvate. Salvare prima di chiudere?</S>
 
 		<!-- TABS -->
 		<S id="TAB_Display">Display / Visuals</S>

@@ -10,25 +10,73 @@
 
 #define MAX_LOADSTRING 100
 
-// Global Variables:
 HINSTANCE hInst;
 HFONT hFont, hBold;
 bool bIsLooping = true, bLaunch = false;
 
-// Forward declarations of functions included in this code module:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK	TabProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
-WNDPROC TabProc_old;
-LRESULT CALLBACK TabProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
+// all controls used by the program
+CWnd hWnd;												// program window
+CCtrlTab hTab;											// tab container
+CCtrlButton hBnClose, hBnDefault, hBnSave, hBnLaunch;	// buttons at the bottom
+CCtrlDescription hDesc;									// option description
+std::vector<std::shared_ptr<CCombined>> hCtrl;			// responsive controls for options
+std::vector<std::shared_ptr<CCtrlGroup>> hGroup;		// group controls inside the tab
 
+// the xml
 CConfig cfg;
+
+enum ProgramStrings
+{
+	STR_TITLE,
+	STR_BN_CLOSE,
+	STR_BN_DEFAULT,
+	STR_BN_SAVE,
+	STR_BN_LAUNCH,
+	STR_LAUNCH_DESC,
+	STR_LAUNCH_TITLE,
+	STR_LAUNCH_EXE,
+	STR_INI_NAME
+};
+
+struct Strings
+{
+	const char* name;
+	const WCHAR* def;
+};
+
+std::wstring GetPrgString(UINT id)
+{
+	// defaults in case these are not in the xml
+	static Strings str[] =
+	{
+		"PRG_Title", L"Silent Hill 2: Enhanced Edition Configuration Tool",
+		"PRG_Close", L"Close",
+		"PRG_Default", L"Defaults",
+		"PRG_Save", L"Save",
+		"PRG_Launch", L"Save & Launch Game",
+		"PRG_Launch_desc", L"Could not launch sh2pc.exe",
+		"PRG_Launch_title", L"ERROR",
+		"PRG_Launch_exe", L"sh2pc.exe",
+		"PRG_Ini_name", L"d3d8.ini"
+	};
+
+	auto s = cfg.GetString(str[id].name);
+	if (s.size())
+		return s;
+
+	// return default if no string matches
+	return std::wstring(str[id].def);
+}
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
 	cfg.ParseXml();
-	cfg.SetFromIni();
+	cfg.SetFromIni(GetPrgString(STR_INI_NAME).c_str());
 	// Initialize global strings
 	InitCommonControls();
 	MyRegisterClass(hInstance);
@@ -65,8 +113,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	}
 
 	if (bLaunch)
-		if (ShellExecuteW(nullptr, nullptr, L"sh2pc.exe", nullptr, nullptr, SW_SHOWNORMAL) <= (HINSTANCE)32)
-			MessageBoxW(nullptr, L"Could not open sh2pc.exe.", L"ERROR", MB_ICONERROR);
+		if (ShellExecuteW(nullptr, nullptr, GetPrgString(STR_LAUNCH_EXE).c_str(), nullptr, nullptr, SW_SHOWNORMAL) <= (HINSTANCE)32)
+			MessageBoxW(nullptr, GetPrgString(STR_LAUNCH_DESC).c_str(), GetPrgString(STR_LAUNCH_TITLE).c_str(), MB_ICONERROR);
 
 	return (int) msg.wParam;
 }
@@ -76,27 +124,16 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	WNDCLASSEXW wcex = { 0 };
 
 	wcex.cbSize = sizeof(WNDCLASSEX);
-
-	wcex.style          = CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc    = WndProc;
-	wcex.hInstance      = hInstance;
-	wcex.hCursor        = LoadCursorW(nullptr, (LPCWSTR)IDC_ARROW);
-	wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW);
-	wcex.lpszClassName  = L"SH2CONFIG";
-	wcex.hIconSm = wcex.hIcon= LoadIconW(wcex.hInstance, MAKEINTRESOURCEW(IDI_CONFIG));
+	wcex.style			= CS_HREDRAW | CS_VREDRAW;
+	wcex.lpfnWndProc	= WndProc;
+	wcex.hInstance		= hInstance;
+	wcex.hCursor		= LoadCursorW(nullptr, (LPCWSTR)IDC_ARROW);
+	wcex.hbrBackground	= (HBRUSH)(COLOR_WINDOW);
+	wcex.lpszClassName	= L"SH2CONFIG";
+	wcex.hIcon			= LoadIconW(wcex.hInstance, MAKEINTRESOURCEW(IDI_CONFIG));
 
 	return RegisterClassExW(&wcex);
 }
-
-CWnd hWnd;
-CCtrlCheckBox hCheck;
-CCtrlTab hTab;
-CCtrlButton hBnClose, hBnDefault, hBnSave,
-	hBnLaunch;
-CCtrlDescription hDesc;
-
-std::vector<std::shared_ptr<CCombined>> hCtrl;
-std::vector<std::shared_ptr<CCtrlGroup>> hGroup;
 
 std::shared_ptr<CCombined> MakeControl(CWnd &hParent, int section, int option, int pos, RECT tab, int base_Y)
 {
@@ -112,34 +149,34 @@ std::shared_ptr<CCombined> MakeControl(CWnd &hParent, int section, int option, i
 	switch (cfg.section[section].option[option].type)
 	{
 	case CConfigOption::TYPE_CHECK:
-	{
-		c = std::make_shared<CFieldCheck>();
-		c->CreateWindow(name.c_str(), X, Y, W - 20, 25, hParent, hInst, hFont);
-		c->SetHover(name.c_str(), desc.c_str(), &hDesc);
-		// set current value
-		c->SetConfigPtr(&cfg.section[section].option[option]);
-		c->SetCheck((bool)c->cValue->cur_val);
-	}
-	break;
+		{
+			c = std::make_shared<CFieldCheck>();
+			c->CreateWindow(name.c_str(), X, Y, W - 20, 25, hParent, hInst, hFont);
+			c->SetHover(name.c_str(), desc.c_str(), &hDesc);
+			// set current value
+			c->SetConfigPtr(&cfg.section[section].option[option]);
+			c->SetCheck((bool)c->cValue->cur_val);
+		}
+		break;
 	case CConfigOption::TYPE_LIST:
-	{
-		c = std::make_shared<CFieldList>();
-		c->CreateWindow(name.c_str(), X, Y, W - 20, 25, hParent, hInst, hFont);
-		for (size_t j = 0, sj = cfg.section[section].option[option].value.size(); j < sj; j++)
-			c->AddString(cfg.GetValueString(section, option, (int)j).c_str());
-		c->SetHover(name.c_str(), desc.c_str(), &hDesc);
-		// set current value
-		c->SetConfigPtr(&cfg.section[section].option[option]);
-		c->SetSelection(c->cValue->cur_val);
-	}
-	break;
+		{
+			c = std::make_shared<CFieldList>();
+			c->CreateWindow(name.c_str(), X, Y, W - 20, 25, hParent, hInst, hFont);
+			for (size_t j = 0, sj = cfg.section[section].option[option].value.size(); j < sj; j++)
+				c->AddString(cfg.GetValueString(section, option, (int)j).c_str());
+			c->SetHover(name.c_str(), desc.c_str(), &hDesc);
+			// set current value
+			c->SetConfigPtr(&cfg.section[section].option[option]);
+			c->SetSelection(c->cValue->cur_val);
+		}
+		break;
 	case CConfigOption::TYPE_PAD:
-	{
-		c = std::make_shared<CFieldList>();
-		c->CreateWindow(cfg.GetOptionString(section, option).c_str(), X, Y, W - 20, 25, hParent, hInst, hFont);
-		// TODO: populate list with controller enumeration
-	}
-	break;
+		{
+			c = std::make_shared<CFieldList>();
+			c->CreateWindow(cfg.GetOptionString(section, option).c_str(), X, Y, W - 20, 25, hParent, hInst, hFont);
+			// TODO: populate list with controller enumeration
+		}
+		break;
 	case CConfigOption::TYPE_TEXT:
 		c = std::make_shared<CCombined>();
 		break;
@@ -222,7 +259,7 @@ void UpdateTab(int section)
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	hInst = hInstance; // Store instance handle in our global variable
-	hWnd.CreateWindow(L"SH2CONFIG", L"Silent Hill 2: Enhanced Edition Configuration Tool", WS_OVERLAPPEDWINDOW & ~(WS_MAXIMIZEBOX | WS_THICKFRAME),
+	hWnd.CreateWindow(L"SH2CONFIG", GetPrgString(STR_TITLE).c_str(), WS_OVERLAPPEDWINDOW & ~(WS_MAXIMIZEBOX | WS_THICKFRAME),
 		CW_USEDEFAULT, CW_USEDEFAULT, 800, 620, nullptr, hInstance);
 	if (!hWnd)
 		return FALSE;
@@ -234,19 +271,19 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	hTab.CreateWindow(0, 0, r.right, r.bottom - 152, hWnd, hInstance, hFont);
 	for (size_t i = 0, si = cfg.group.size(); i < si; i++)
 		hTab.InsertItem((int)i, cfg.GetGroupString((int)i).c_str());
-	TabProc_old = (WNDPROC)SetWindowLongPtrW(hTab, GWLP_WNDPROC, (LONG_PTR)TabProc);	// need to subclass the tab to catch messages for controls in tabs
+	hTab.Subclass(TabProc);		// subclass the tab to catch messages for controls inside it
 
 	// create the description field
 	hDesc.CreateWindow(4, r.bottom - 150, r.right - 8, 118, hWnd, hInstance, hFont, hBold);
 
 	// create the bottom buttons
 	int Y = r.bottom - 30;
-	hBnClose.CreateWindow(L"Close", 4, Y, 60, 26, hWnd, hInstance, hFont);
+	hBnClose.CreateWindow(GetPrgString(STR_BN_CLOSE).c_str(), 4, Y, 60, 26, hWnd, hInstance, hFont);
 
-	int X = r.right - 231;
-	hBnDefault.CreateWindow(L"Defaults", X, Y, 60, 26, hWnd, hInstance, hFont); X += 64;
-	hBnSave.CreateWindow(L"Save", X, Y, 40, 26, hWnd, hInstance, hFont); X += 44;
-	hBnLaunch.CreateWindow(L"Save && Launch Game", X, Y, 120, 26, hWnd, hInstance, hFont);
+	int X = r.right - 291;
+	hBnDefault.CreateWindow(GetPrgString(STR_BN_DEFAULT).c_str(), X, Y, 80, 26, hWnd, hInstance, hFont); X += 84;
+	hBnSave.CreateWindow(GetPrgString(STR_BN_SAVE).c_str(), X, Y, 60, 26, hWnd, hInstance, hFont); X += 64;
+	hBnLaunch.CreateWindow(GetPrgString(STR_BN_LAUNCH).c_str(), X, Y, 140, 26, hWnd, hInstance, hFont);
 
 	// assign custom IDs to all buttons for easier catching
 	SetWindowLongPtrW(hBnClose,   GWLP_ID, WM_USER);
@@ -297,7 +334,7 @@ LRESULT CALLBACK TabProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 
-	return CallWindowProcW(TabProc_old, hWnd, Msg, wParam, lParam);
+	return hTab.CallProcedure(hWnd, Msg, wParam, lParam);
 }
 
 LRESULT CALLBACK WndProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -337,11 +374,11 @@ LRESULT CALLBACK WndProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
 				UpdateTab(hTab.GetCurSel());
 				break;
 			case WM_USER + 2:	// save
-				cfg.SaveIni();
+				cfg.SaveIni(GetPrgString(STR_INI_NAME).c_str());
 				break;
 			case WM_USER + 3:	// save & launch
 				bLaunch = true;
-				cfg.SaveIni();
+				cfg.SaveIni(GetPrgString(STR_INI_NAME).c_str());
 				SendMessageW(hWnd, WM_DESTROY, 0, 0);
 				break;
 			}

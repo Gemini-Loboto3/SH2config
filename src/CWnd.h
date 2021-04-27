@@ -33,12 +33,14 @@ public:
 
 	void SetWnd(HWND wnd) { hWnd = wnd; }
 	void SetText(LPCWSTR lpString) { SetWindowTextW(*this, lpString); }
-	void Subclass(WNDPROC new_proc)
+	WNDPROC Subclass(WNDPROC new_proc)
 	{
 		WNDPROC ret = (WNDPROC)SetWindowLongPtrW(*this, GWLP_WNDPROC, (LONG_PTR)new_proc);
 		// preserve only the original procedure
 		if (old_proc == nullptr)
 			old_proc = ret;
+
+		return ret;
 	}
 	LRESULT CallProcedure(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{

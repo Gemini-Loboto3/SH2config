@@ -243,8 +243,8 @@ class CConfig
 public:
 	void ParseXml();
 	void SetDefault();
-	void SetFromIni();
-	void SaveIni();
+	void SetFromIni(LPCWSTR lpName);
+	void SaveIni(LPCWSTR lpName);
 
 	std::vector<CConfigSection> section;	// ini hierarchy used to parse and rebuild d3d8.ini
 	std::vector<CConfigGroup> group;		// ini groups, represented as tabs on interface (it's only for grouping, doesn't influence ini structure)
@@ -277,5 +277,7 @@ public:
 
 	std::wstring GetGroupString(int sec);
 	std::wstring GetGroupLabel(int sec, int sub);
+
+	std::wstring GetString(const char* name);
 };
 

@@ -112,16 +112,16 @@ void __stdcall ParseCallback(char* lpName, char* lpValue, void *lpParam)
 	}
 
 #if _DEBUG
-	char mes[64];
-	sprintf_s(mes, 64, "Orphaned setting: %s %s\n", lpName, lpValue);
+	char mes[256];
+	sprintf_s(mes, 256, "Orphaned setting: %s %s\n", lpName, lpValue);
 	OutputDebugStringA(mes);
 #endif;
 }
 
-void CConfig::SetFromIni()
+void CConfig::SetFromIni(LPCWSTR lpName)
 {
 	// attempt to load the ini
-	auto ini = Ini_Read(L"d3d8.ini");
+	auto ini = Ini_Read(lpName);
 	if (ini == nullptr) return;
 
 	// build reference to all options for quicker callback parsing
@@ -137,11 +137,12 @@ void CConfig::SetFromIni()
 	free(ini);
 }
 
-void CConfig::SaveIni()
+void CConfig::SaveIni(LPCWSTR lpName)
 {
 	FILE* fp = nullptr;
-	_wfopen_s(&fp, L"d3d8.ini", L"wt");
-	if (fp == nullptr) return;
+	_wfopen_s(&fp, lpName, L"wt");
+	if (fp == nullptr)
+		return;
 
 	for (size_t i = 0, si = section.size(); i < si; i++)
 	{
@@ -208,6 +209,11 @@ std::wstring CConfig::GetValueString(int sec, int opt, int val)
 		return MultiToWide_s(section[sec].option[opt].value[val].name);
 
 	return id;
+}
+
+std::wstring CConfig::GetString(const char* name)
+{
+	return string.Find(name);
 }
 
 /////////////////////////////////////////////////

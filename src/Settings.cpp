@@ -22,10 +22,6 @@
 #include <string>
 #include "Settings.h"
 
-// Forward declarations
-bool SetValue(char* name);
-bool IsValidSettings(char* name, char* value);
-
 // Check if the values are valid
 bool Ini_IsValidSettings(char* name, char* value)
 {
@@ -123,7 +119,7 @@ static void EraseCppComments(char* str)
 //  0x20 - space
 //	0x09 - horizontal tab
 //	0x0D - carriage return
-void Ini_Parse(char* str, NV NameValueCallback, void* lpParam)
+void Ini_Parse(char* str, Ini_NV NameValueCallback, void* lpParam)
 {
 	char *next_token = nullptr;
 	EraseCppComments(str);

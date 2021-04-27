@@ -13,7 +13,8 @@ public:
 		hWnd(0),
 		hWndParent(0),
 		hInst(0),
-		tType(TYPE_WND)
+		tType(TYPE_WND),
+		old_proc(nullptr)
 	{}
 
 	operator HWND() { return hWnd; }
@@ -32,6 +33,17 @@ public:
 
 	void SetWnd(HWND wnd) { hWnd = wnd; }
 	void SetText(LPCWSTR lpString) { SetWindowTextW(*this, lpString); }
+	void Subclass(WNDPROC new_proc)
+	{
+		WNDPROC ret = (WNDPROC)SetWindowLongPtrW(*this, GWLP_WNDPROC, (LONG_PTR)new_proc);
+		// preserve only the original procedure
+		if (old_proc == nullptr)
+			old_proc = ret;
+	}
+	LRESULT CallProcedure(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam)
+	{
+		return CallWindowProcW(old_proc, wnd, msg, wParam, lParam);
+	}
 
 	enum Type
 	{
@@ -44,6 +56,7 @@ public:
 private:
 	HWND hWnd, hWndParent;
 	HINSTANCE hInst;
+	WNDPROC old_proc;
 };
 
 class CCtrlGroup : public CWnd
@@ -116,7 +129,8 @@ public:
 		uAlign = Align;
 		CWnd::CreateWindow(WC_STATICW, lpName, SS_LEFT | WS_VISIBLE | WS_CHILD | WS_CLIPCHILDREN, X, Y, Width, Height, hParent, hInstance);
 		SetWindowLongPtrW(*this, GWLP_USERDATA, (LONG_PTR)this);
-		old_proc = (WNDPROC)SetWindowLongPtrW(*this, GWLP_WNDPROC, (LONG_PTR)proc);
+		//old_proc = (WNDPROC)SetWindowLongPtrW(*this, GWLP_WNDPROC, (LONG_PTR)proc);
+		Subclass(proc);
 		SendMessageW(*this, WM_SETFONT, (LPARAM)hFont, TRUE);
 	}
 
@@ -161,7 +175,6 @@ public:
 	}
 
 	std::wstring szText;
-	WNDPROC old_proc;
 	HFONT hFont;
 	UINT uAlign;
 
@@ -182,7 +195,7 @@ public:
 		case WM_ERASEBKGND:
 			return 0;
 		default:
-			return CallWindowProcW(c->old_proc, hWnd, Msg, wParam, lParam);
+			return c->CallProcedure(hWnd, Msg, wParam, lParam);
 		}
 
 		return 0;
@@ -260,7 +273,8 @@ class CCombined
 {
 public:
 	CCombined() : cCtrl(nullptr),
-		cValue(nullptr)
+		cValue(nullptr),
+		uType(TYPE_DEFAULT)
 	{}
 
 	virtual void CreateWindow(LPCWSTR lpName, int X, int Y, int Width, int Height, HWND hParent, HINSTANCE hInstance, HFONT hFont) {}
@@ -283,19 +297,30 @@ public:
 			cValue->cur_val = val;
 	}
 
+	enum TYPE
+	{
+		TYPE_DEFAULT,
+		TYPE_CHECK,
+		TYPE_LIST,
+		TYPE_PAD
+	};
+
+	UINT uType;
 	std::wstring szText, szDesc;
 	CCtrlDescription* cCtrl;
 	CConfigOption* cValue;
 };
 
-class CFieldCombo : public CCombined
+class CFieldCheck : public CCombined
 {
 public:
 	virtual void CreateWindow(LPCWSTR lpName, int X, int Y, int Width, int Height, HWND hParent, HINSTANCE hInstance, HFONT hFont)
 	{
+		uType = TYPE_CHECK;
 		box.CreateWindow(lpName, X, Y, Width, Height, hParent, hInstance, hFont);
 		SetWindowLongPtrW(box, GWLP_USERDATA, (LONG_PTR)this);
-		old = (WNDPROC)SetWindowLongPtrW(box, GWLP_WNDPROC, (LONG_PTR)proc);
+		//old = (WNDPROC)SetWindowLongPtrW(box, GWLP_WNDPROC, (LONG_PTR)proc);
+		box.Subclass(proc);
 	}
 	virtual void Release()
 	{
@@ -307,20 +332,20 @@ public:
 
 	static LRESULT CALLBACK proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 	{
-		CFieldCombo* box = (CFieldCombo*)GetWindowLongPtrW(hWnd, GWLP_USERDATA);
+		CFieldCheck* check = (CFieldCheck*)GetWindowLongPtrW(hWnd, GWLP_USERDATA);
 
 		switch (Msg)
 		{
 		case WM_MOUSEMOVE:
-			if (box->cCtrl)
+			if (check->cCtrl)
 			{
-				box->cCtrl->SetCaption(box->szText.c_str());
-				box->cCtrl->SetText(box->szDesc.c_str());
+				check->cCtrl->SetCaption(check->szText.c_str());
+				check->cCtrl->SetText(check->szDesc.c_str());
 			}
 			break;
 		}
 
-		return box->old(hWnd, Msg, wParam, lParam);
+		return check->box.CallProcedure(hWnd, Msg, wParam, lParam);
 	}
 
 	CCtrlCheckBox box;
@@ -332,14 +357,17 @@ class CFieldList : public CCombined
 public:
 	virtual void CreateWindow(LPCWSTR lpName, int X, int Y, int Width, int Height, HWND hParent, HINSTANCE hInstance, HFONT hFont)
 	{
-		const int sub = 120;
+		uType = TYPE_LIST;
+		const int sub = 140;
 		hStatic.CreateWindow(lpName, X, Y, Width - sub, Height, hParent, hInstance, hFont);
 		hList.CreateWindow(X + Width - sub, Y, sub, Height, hParent, hInstance, hFont);
 
 		SetWindowLongPtrW(hStatic, GWLP_USERDATA, (LONG_PTR)this);
 		SetWindowLongPtrW(hList,   GWLP_USERDATA, (LONG_PTR)this);
-		old_static = (WNDPROC)SetWindowLongPtrW(hStatic, GWLP_WNDPROC, (LONG_PTR)proc_static);
-		old_list   = (WNDPROC)SetWindowLongPtrW(hList,   GWLP_WNDPROC, (LONG_PTR)proc_list);
+		//old_static = (WNDPROC)SetWindowLongPtrW(hStatic, GWLP_WNDPROC, (LONG_PTR)proc_static);
+		hStatic.Subclass(proc_static);
+		hList.Subclass(proc_list);
+		//old_list   = (WNDPROC)SetWindowLongPtrW(hList,   GWLP_WNDPROC, (LONG_PTR)proc_list);
 	}
 	virtual void Release()
 	{
@@ -368,7 +396,7 @@ public:
 			break;
 		}
 
-		return CallWindowProcW(list->old_list, hWnd, Msg, wParam, lParam);
+		return list->hList.CallProcedure(hWnd, Msg, wParam, lParam);
 	}
 
 	static LRESULT CALLBACK proc_static(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
@@ -396,10 +424,9 @@ public:
 			return 0;
 		}
 
-		return CallWindowProcW(st->old_static, hWnd, Msg, wParam, lParam);
+		return st->hStatic.CallProcedure(hWnd, Msg, wParam, lParam);
 	}
 
-	WNDPROC old_list, old_static;
 private:
 	CCtrlStatic hStatic;
 	CCtrlDropBox hList;
@@ -407,8 +434,10 @@ private:
 
 class CFieldPad : public CCombined
 {
+public:
 	virtual void CreateWindow(LPCWSTR lpName, int X, int Y, int Width, int Height, HWND hParent, HINSTANCE hInstance, HFONT hFont)
 	{
+		uType = TYPE_PAD;
 		const int W = 110;
 		hStatic.CreateWindow(lpName, X, Y, Width - W, Height, hParent, hInstance, hFont);
 		hList.CreateWindow(X + Width - W, Y, W, Height, hParent, hInstance, hFont);

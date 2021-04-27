@@ -9,6 +9,55 @@
 using namespace tinyxml2;
 std::wstring MultiToWide_s(const char* multi);
 
+class CHashString
+{
+public:
+	operator const char* () { return str.c_str(); }
+	operator std::string() { return str; }
+	operator std::string& () { return str; }
+
+	void operator = (const char* s)
+	{
+		if (s == nullptr)
+			str = std::string("");
+		else str = std::string(s);
+
+		GenerateHash();
+	}
+
+	void operator = (std::string s)
+	{
+		str = s;
+		GenerateHash();
+	}
+
+	// simulate strcmp
+	int compare(std::string s)
+	{
+		if (XXH64(str.c_str(), str.size(), 0) == hash)
+			return 0;
+
+		return 1;
+	}
+
+	int compare(const char* s)
+	{
+		if (XXH64(s, strlen(s), 0) == hash)
+			return 0;
+
+		return 1;
+	}
+
+private:
+	void GenerateHash()
+	{
+		hash = XXH64(str.c_str(), str.size(), 0);
+	}
+
+	std::string str;
+	XXH64_hash_t hash;
+};
+
 class CConfigValue
 {
 public:
@@ -30,7 +79,7 @@ public:
 		{
 			if (value[i].val.compare(name) == 0)
 			{
-				cur_val = i;
+				cur_val = (int)i;
 				return;
 			}
 		}
@@ -45,7 +94,7 @@ public:
 		{
 			if (value[i].is_default)
 			{
-				cur_val = i;
+				cur_val = (int)i;
 				return;
 			}
 		}
@@ -195,6 +244,7 @@ public:
 	void ParseXml();
 	void SetDefault();
 	void SetFromIni();
+	void SaveIni();
 
 	std::vector<CConfigSection> section;	// ini hierarchy used to parse and rebuild d3d8.ini
 	std::vector<CConfigGroup> group;		// ini groups, represented as tabs on interface (it's only for grouping, doesn't influence ini structure)

@@ -137,6 +137,25 @@ void CConfig::SetFromIni()
 	free(ini);
 }
 
+void CConfig::SaveIni()
+{
+	FILE* fp = nullptr;
+	_wfopen_s(&fp, L"d3d8.ini", L"wt");
+	if (fp == nullptr) return;
+
+	for (size_t i = 0, si = section.size(); i < si; i++)
+	{
+		// current section
+		fwprintf(fp, L"[%hs]\n", section[i].name.c_str());
+		// write all options
+		for (size_t j = 0, sj = section[i].option.size(); j < sj; j++)
+			fwprintf(fp, L"%hs = %hs\n", section[i].option[j].name.c_str(), section[i].option[j].value[section[i].option[j].cur_val].val.c_str());
+		// tail
+		fwprintf(fp, L"\n");
+	}
+	fclose(fp);
+}
+
 std::wstring CConfig::GetSectionString(int sec)
 {
 	auto id = string.Find(section[sec].id);

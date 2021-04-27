@@ -6,13 +6,14 @@
 #include "CWnd.h"
 #include "CConfig.h"
 #include <memory>
+#include <shellapi.h>
 
 #define MAX_LOADSTRING 100
 
 // Global Variables:
 HINSTANCE hInst;
 HFONT hFont, hBold;
-bool bIsLooping = true;
+bool bIsLooping = true, bLaunch = false;
 
 // Forward declarations of functions included in this code module:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
@@ -63,6 +64,10 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 		}
 	}
 
+	if (bLaunch)
+		if (ShellExecuteW(nullptr, nullptr, L"sh2pc.exe", nullptr, nullptr, SW_SHOWNORMAL) <= (HINSTANCE)32)
+			MessageBoxW(nullptr, L"Could not open sh2pc.exe.", L"ERROR", MB_ICONERROR);
+
 	return (int) msg.wParam;
 }
 
@@ -96,7 +101,7 @@ std::vector<std::shared_ptr<CCtrlGroup>> hGroup;
 std::shared_ptr<CCombined> MakeControl(CWnd &hParent, int section, int option, int pos, RECT tab, int base_Y)
 {
 	std::shared_ptr<CCombined> c;
-	int W = (tab.right - tab.left - 40) / 2;
+	int W = (tab.right - tab.left - 16) / 2;
 	int X = tab.left + 16 + (pos % 2) * W;
 	int Y = tab.top + (pos / 2) * 25 + base_Y;
 
@@ -108,7 +113,7 @@ std::shared_ptr<CCombined> MakeControl(CWnd &hParent, int section, int option, i
 	{
 	case CConfigOption::TYPE_CHECK:
 	{
-		c = std::make_shared<CFieldCombo>();
+		c = std::make_shared<CFieldCheck>();
 		c->CreateWindow(name.c_str(), X, Y, W - 20, 25, hParent, hInst, hFont);
 		c->SetHover(name.c_str(), desc.c_str(), &hDesc);
 		// set current value
@@ -143,8 +148,6 @@ std::shared_ptr<CCombined> MakeControl(CWnd &hParent, int section, int option, i
 		break;
 	}
 
-	
-
 	return c;
 }
 
@@ -171,10 +174,13 @@ void PopulateTab(int section)
 		size_t count = cfg.group[section].sub[i].opt.size();
 		int rows = ((count + 1) & ~1) / 2;
 
+		// create group control
 		std::shared_ptr<CCtrlGroup> gp = std::make_shared<CCtrlGroup>();
 		gp->CreateWindow(cfg.GetGroupLabel(section, (int)i).c_str(), rect.left + 2, Y + rect.top - 20, rect.right - rect.left - 6, rows * 25 + 30, hTab, hInst, hFont);
 		hGroup.push_back(gp);
 
+		// calculate size and position of the group
+		// (not really necessary but provides a quick rect)
 		RECT gp_rect;
 		GetClientRect(*gp, &gp_rect);
 
@@ -191,34 +197,73 @@ void PopulateTab(int section)
 	}
 }
 
+void UpdateTab(int section)
+{
+	for (size_t i = 0, ctrl = 0, si = cfg.group[section].sub.size(), pos = 0; i < si; i++)
+	{
+		for (size_t j = 0, sj = cfg.group[section].sub[i].opt.size(); j < sj; j++, pos++, ctrl++)
+		{
+			int s, o;
+			cfg.FindSectionAndOption(cfg.group[section].sub[i].opt[j].sec, cfg.group[section].sub[i].opt[j].op, s, o);
+
+			switch (hCtrl[pos]->uType)
+			{
+			case CCombined::TYPE_CHECK:
+				hCtrl[pos]->SetCheck(cfg.section[s].option[o].cur_val);
+				break;
+			case CCombined::TYPE_LIST:
+				hCtrl[pos]->SetSelection(cfg.section[s].option[o].cur_val);
+				break;
+			}
+		}
+	}
+}
+
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	hInst = hInstance; // Store instance handle in our global variable
-	hWnd.CreateWindow(L"SH2CONFIG", L"Silent Hill 2 Enhanced Edition Configuration Tool", WS_OVERLAPPEDWINDOW & ~(WS_MAXIMIZEBOX | WS_THICKFRAME),
-		CW_USEDEFAULT, CW_USEDEFAULT, 800, 600, nullptr, hInstance);
+	hWnd.CreateWindow(L"SH2CONFIG", L"Silent Hill 2: Enhanced Edition Configuration Tool", WS_OVERLAPPEDWINDOW & ~(WS_MAXIMIZEBOX | WS_THICKFRAME),
+		CW_USEDEFAULT, CW_USEDEFAULT, 800, 620, nullptr, hInstance);
 	if (!hWnd)
 		return FALSE;
 
 	RECT r;
 	GetClientRect(hWnd, &r);
 
-	hTab.CreateWindow(0, 0, r.right, r.bottom - 132, hWnd, hInstance, hFont);
+	// create the main tab
+	hTab.CreateWindow(0, 0, r.right, r.bottom - 152, hWnd, hInstance, hFont);
 	for (size_t i = 0, si = cfg.group.size(); i < si; i++)
 		hTab.InsertItem((int)i, cfg.GetGroupString((int)i).c_str());
-	TabProc_old = (WNDPROC)SetWindowLongPtrW(hTab, GWLP_WNDPROC, (LONG_PTR)TabProc);
+	TabProc_old = (WNDPROC)SetWindowLongPtrW(hTab, GWLP_WNDPROC, (LONG_PTR)TabProc);	// need to subclass the tab to catch messages for controls in tabs
 
-	hDesc.CreateWindow(2, r.bottom - 130, r.right - 4, 98, hWnd, hInstance, hFont, hBold);
+	// create the description field
+	hDesc.CreateWindow(4, r.bottom - 150, r.right - 8, 118, hWnd, hInstance, hFont, hBold);
 
+	// create the bottom buttons
 	int Y = r.bottom - 30;
 	hBnClose.CreateWindow(L"Close", 4, Y, 60, 26, hWnd, hInstance, hFont);
 
-	int X = r.right - 234;
+	int X = r.right - 231;
 	hBnDefault.CreateWindow(L"Defaults", X, Y, 60, 26, hWnd, hInstance, hFont); X += 64;
-	hBnDefault.CreateWindow(L"Save", X, Y, 40, 26, hWnd, hInstance, hFont); X += 44;
-	hBnDefault.CreateWindow(L"Save && Launch Game", X, Y, 120, 26, hWnd, hInstance, hFont);
+	hBnSave.CreateWindow(L"Save", X, Y, 40, 26, hWnd, hInstance, hFont); X += 44;
+	hBnLaunch.CreateWindow(L"Save && Launch Game", X, Y, 120, 26, hWnd, hInstance, hFont);
 
+	// assign custom IDs to all buttons for easier catching
+	SetWindowLongPtrW(hBnClose,   GWLP_ID, WM_USER);
+	SetWindowLongPtrW(hBnDefault, GWLP_ID, WM_USER + 1);
+	SetWindowLongPtrW(hBnSave,    GWLP_ID, WM_USER + 2);
+	SetWindowLongPtrW(hBnLaunch,  GWLP_ID, WM_USER + 3);
+
+	// if sh2pc.exe doesn't exist, don't enable the launch button
+	FILE* fp = nullptr;
+	fopen_s(&fp, "sh2pc.exe", "rb");
+	if (!fp) EnableWindow(hBnLaunch, false);
+	else fclose(fp);
+
+	// populate the first tab
 	PopulateTab(0);
 
+	// let's go!
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
 
@@ -229,17 +274,19 @@ LRESULT CALLBACK TabProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (Msg)
 	{
+	case WM_MOUSEMOVE:
+		break;
 	case WM_COMMAND:
 		switch (HIWORD(wParam))
 		{
-		case CBN_SELCHANGE:
+		case CBN_SELCHANGE:	// catch selections
 			{
 				CCombined* wnd = reinterpret_cast<CCombined*>(GetWindowLongPtrW((HWND)lParam, GWLP_USERDATA));
 				int sel = wnd->GetSelection();
 				wnd->SetConfigValue(sel);
 			}
 			break;
-		case BN_CLICKED:
+		case BN_CLICKED:	// catch checkboxes
 			{
 				CCombined* wnd = reinterpret_cast<CCombined*>(GetWindowLongPtrW((HWND)lParam, GWLP_USERDATA));
 				bool checked = wnd->GetCheck();
@@ -257,21 +304,13 @@ LRESULT CALLBACK WndProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
-	case WM_CREATE:
-		{
-			CREATESTRUCT* pCS = (CREATESTRUCT*)lParam;
-			CWnd* h = (CWnd*)pCS->lpCreateParams;
-			h->SetWnd(wnd);
-		}
-		return 0;
-	case WM_PAINT:
-		{
-			PAINTSTRUCT ps;
-			HDC hdc = BeginPaint(wnd, &ps);
-			// TODO: Add any drawing code that uses hdc here...
-			EndPaint(wnd, &ps);
-		}
-		return 0;
+	//case WM_CREATE:
+	//	{
+	//		CREATESTRUCT* pCS = (CREATESTRUCT*)lParam;
+	//		CWnd* h = (CWnd*)pCS->lpCreateParams;
+	//		h->SetWnd(wnd);
+	//	}
+	//	return 0;
 	case WM_DESTROY:
 		bIsLooping = false;
 		PostQuitMessage(0);
@@ -281,6 +320,31 @@ LRESULT CALLBACK WndProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 		case TCN_SELCHANGE:
 			PopulateTab(hTab.GetCurSel());
+			break;
+		}
+		break;
+	case WM_COMMAND:
+		switch (HIWORD(wParam))
+		{
+		case BN_CLICKED:
+			switch (LOWORD(wParam))
+			{
+			case WM_USER + 0:	// close
+				SendMessageW(hWnd, WM_DESTROY, 0, 0);
+				break;
+			case WM_USER + 1:	// defaults
+				cfg.SetDefault();
+				UpdateTab(hTab.GetCurSel());
+				break;
+			case WM_USER + 2:	// save
+				cfg.SaveIni();
+				break;
+			case WM_USER + 3:	// save & launch
+				bLaunch = true;
+				cfg.SaveIni();
+				SendMessageW(hWnd, WM_DESTROY, 0, 0);
+				break;
+			}
 			break;
 		}
 		break;

@@ -33,6 +33,7 @@ public:
 
 	void SetWnd(HWND wnd) { hWnd = wnd; }
 	void SetText(LPCWSTR lpString) { SetWindowTextW(hWnd, lpString); }
+	void Enable(bool enable = true) { EnableWindow(hWnd, enable); }
 	WNDPROC Subclass(WNDPROC new_proc)
 	{
 		WNDPROC ret = (WNDPROC)SetWindowLongPtrW(hWnd, GWLP_WNDPROC, (LONG_PTR)new_proc);

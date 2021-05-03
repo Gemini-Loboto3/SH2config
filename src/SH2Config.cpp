@@ -89,6 +89,7 @@ void SetChanges()
 	if (bHasChange == false)
 	{
 		::hWnd.SetText((GetPrgString(STR_TITLE) + GetPrgString(STR_UNSAVED)).c_str());
+		hBnSave.Enable();
 		bHasChange = true;
 	}
 }
@@ -98,12 +99,22 @@ void RestoreChanges()
 	if (bHasChange)
 	{
 		::hWnd.SetText(GetPrgString(STR_TITLE).c_str());
+		hBnSave.Enable(false);
 		bHasChange = false;
 	}
 }
 
+void CheckArgumentsForPID();
+void RemoveVirtualStoreFiles();
+void CheckAdminAccess();
+
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
+	// boot in admin mode
+	CheckArgumentsForPID();
+	RemoveVirtualStoreFiles();
+	CheckAdminAccess();
+
 	if (cfg.ParseXml())
 	{
 		MessageBoxA(nullptr, "Could not load config.xml.", "INITIALIZATION ERROR", MB_ICONERROR);
@@ -324,6 +335,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	hBnDefault.SetID(WM_USER + 1);
 	hBnSave.SetID   (WM_USER + 2);
 	hBnLaunch.SetID (WM_USER + 3);
+
+	// make save button start as disabled
+	hBnSave.Enable(false);
 
 	// if sh2pc.exe doesn't exist, don't enable the launch button
 	FILE* fp = nullptr;

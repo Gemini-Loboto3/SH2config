@@ -167,6 +167,7 @@
     <ClInclude Include="xxhash.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="admin.cpp" />
     <ClCompile Include="CConfig.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="SH2Config.cpp" />
